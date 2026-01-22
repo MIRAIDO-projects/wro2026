@@ -1,3 +1,63 @@
+---
+import { SEO } from "astro-seo";
+
+interface Props {
+	title?: string;
+	description?: string;
+	image?: string;
+	article?: boolean;
+	publishedTime?: string;
+	modifiedTime?: string;
+}
+
+const {
+	title = "WRO 2026 Portal",
+	description = "Official Portal for WRO 2026. Robotics competition news, updates, and resources.",
+	image = "/og-image.jpg",
+	article = false,
+	publishedTime,
+	modifiedTime,
+} = Astro.props;
+
+// Schema.org JSON-LD Construction
+const schema: any = {
+	"@context": "https://schema.org",
+	"@graph": [
+		{
+			"@type": "Organization",
+			"@id": "https://wro2026.org/#organization",
+			name: "WRO 2026 Committee",
+			url: "https://wro2026.org",
+			logo: "https://wro2026.org/logo.png",
+			sameAs: [
+				"https://twitter.com/wro2026",
+				"https://facebook.com/wro2026",
+			],
+		},
+		{
+			"@type": "WebSite",
+			"@id": "https://wro2026.org/#website",
+			url: "https://wro2026.org",
+			name: "WRO 2026 Portal",
+			publisher: { "@id": "https://wro2026.org/#organization" },
+		},
+	],
+};
+
+if (article) {
+	schema["@graph"].push({
+		"@type": "Article",
+		headline: title.split("|")[0].trim(),
+		description: description,
+		image: image,
+		datePublished: publishedTime,
+		dateModified: modifiedTime || publishedTime,
+		author: { "@id": "https://wro2026.org/#organization" },
+		publisher: { "@id": "https://wro2026.org/#organization" },
+	});
+}
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
@@ -5,18 +65,86 @@
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+
+		<SEO
+			title={title}
+			description={description}
+			openGraph={{
+				basic: {
+					title: title,
+					type: article ? "article" : "website",
+					image: image,
+				},
+			}}
+			twitter={{
+				creator: "@wro2026",
+			}}
+			extend={{
+				meta: [
+					{ name: "twitter:image", content: image },
+					{ name: "twitter:title", content: title },
+					{ name: "twitter:description", content: description },
+				],
+			}}
+		/>
+
+		<script type="application/ld+json" set:html={JSON.stringify(schema)} />
 	</head>
-	<body>
+	<body class="antialiased bg-gray-50 text-gray-900">
 		<slot />
+
+		<script>
+			import Lenis from "lenis";
+			import { gsap } from "gsap";
+			import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+			gsap.registerPlugin(ScrollTrigger);
+
+			const lenis = new Lenis({
+				duration: 1.2,
+				easing: (t: number) =>
+					Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
+				orientation: "vertical",
+				gestureOrientation: "vertical",
+				smoothWheel: true,
+			});
+
+			function raf(time: number) {
+				lenis.raf(time);
+				requestAnimationFrame(raf);
+			}
+
+			requestAnimationFrame(raf);
+
+			// Integrate GSAP ScrollTrigger with Lenis
+			// lenis.on('scroll', ScrollTrigger.update) // Not always needed depending on version, but good practice if syncing issues trigger.
+			// gsap.ticker.add((time)=>{
+			//   lenis.raf(time * 1000)
+			// })
+			// gsap.ticker.lagSmoothing(0)
+		</script>
 	</body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
+<style is:global>
+	html.lenis,
+	html.lenis body {
+		height: auto;
+	}
+
+	.lenis.lenis-smooth {
+		scroll-behavior: auto !important;
+	}
+
+	.lenis.lenis-smooth [data-lenis-prevent] {
+		overscroll-behavior: contain;
+	}
+
+	.lenis.lenis-stopped {
+		overflow: hidden;
+	}
+
+	.lenis.lenis-scrolling iframe {
+		pointer-events: none;
 	}
 </style>

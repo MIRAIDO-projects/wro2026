@@ -1,11 +1,59 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import { getBlogs, type Blog } from "../lib/microcms";
+import ThreeScene from "../components/ThreeScene";
+import ContactForm from "../components/ContactForm";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const { contents: blogs } = (await getBlogs({
+	fields: ["id", "title", "publishedAt", "eyecatch"],
+})) as { contents: Blog[] };
 ---
 
 <Layout>
-	<Welcome />
+	<main class="container mx-auto px-4 py-8">
+		<h1 class="text-4xl font-bold mb-8">WRO 2026 Portal</h1>
+
+		<section class="mb-12">
+			<ThreeScene client:visible />
+		</section>
+
+		<section class="mb-12">
+			<h2 class="text-2xl font-bold mb-4">Contact Us</h2>
+			<ContactForm client:visible />
+		</section>
+
+		<section>
+			<h2 class="text-2xl font-bold mb-4">Latest News & Blogs</h2>
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				{
+					blogs.map((blog) => (
+						<a
+							href={`/blog/${blog.id}`}
+							class="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+						>
+							{blog.eyecatch && (
+								<img
+									src={blog.eyecatch.url}
+									alt={blog.title}
+									width={blog.eyecatch.width}
+									height={blog.eyecatch.height}
+									class="w-full h-48 object-cover"
+								/>
+							)}
+							<div class="p-4">
+								<h3 class="text-xl font-semibold mb-2">
+									{blog.title}
+								</h3>
+								<p class="text-gray-500 text-sm">
+									{new Date(
+										blog.publishedAt,
+									).toLocaleDateString()}
+								</p>
+							</div>
+						</a>
+					))
+				}
+			</div>
+		</section>
+	</main>
 </Layout>
