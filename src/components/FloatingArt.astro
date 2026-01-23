@@ -1,161 +1,181 @@
 ---
 // Floating Art Background - paintings flow randomly in the background with scroll
+// Using GSAP for smooth, reliable animations
 ---
 
 <div
-    class="floating-art-container fixed inset-0 pointer-events-none overflow-hidden"
+    id="floating-art-container"
+    class="fixed inset-0 pointer-events-none overflow-hidden"
     style="z-index: 5;"
 >
-    <!-- Picasso Style -->
-    <div class="floating-art" data-speed="0.3" data-x="10" data-y="120">
-        <img src="/images/picasso_robot.png" alt="" class="floating-img" />
-    </div>
-
-    <!-- Warhol Style -->
-    <div class="floating-art" data-speed="0.5" data-x="70" data-y="200">
-        <img src="/images/warhol_robot.png" alt="" class="floating-img" />
-    </div>
-
-    <!-- Abstract Style -->
-    <div class="floating-art" data-speed="0.4" data-x="30" data-y="350">
+    <!-- Image 1 -->
+    <div class="floating-art">
         <img
-            src="/images/abstract_music_robot.png"
-            alt=""
+            src="/images/bg001.jpg"
+            alt="Art Background 1"
             class="floating-img"
         />
     </div>
 
-    <!-- Duplicates for more coverage -->
-    <div class="floating-art" data-speed="0.25" data-x="80" data-y="450">
-        <img src="/images/picasso_robot.png" alt="" class="floating-img" />
-    </div>
-
-    <div class="floating-art" data-speed="0.45" data-x="15" data-y="550">
-        <img src="/images/warhol_robot.png" alt="" class="floating-img" />
-    </div>
-
-    <div class="floating-art" data-speed="0.35" data-x="60" data-y="700">
+    <!-- Image 2 -->
+    <div class="floating-art">
         <img
-            src="/images/abstract_music_robot.png"
-            alt=""
+            src="/images/bg002.jpg"
+            alt="Art Background 2"
+            class="floating-img"
+        />
+    </div>
+
+    <!-- Image 3 -->
+    <div class="floating-art">
+        <img
+            src="/images/bg003.jpg"
+            alt="Art Background 3"
+            class="floating-img"
+        />
+    </div>
+
+    <!-- Image 4 -->
+    <div class="floating-art">
+        <img
+            src="/images/bg004.jpg"
+            alt="Art Background 4"
+            class="floating-img"
+        />
+    </div>
+
+    <!-- Image 5 -->
+    <div class="floating-art">
+        <img
+            src="/images/bg005.jpg"
+            alt="Art Background 5"
+            class="floating-img"
+        />
+    </div>
+
+    <!-- Image 6 -->
+    <div class="floating-art">
+        <img
+            src="/images/bg006.jpg"
+            alt="Art Background 6"
+            class="floating-img"
+        />
+    </div>
+
+    <!-- Duplicates for more density if needed, picking random ones -->
+    <div class="floating-art">
+        <img
+            src="/images/bg001.jpg"
+            alt="Art Background 1 Rep"
+            class="floating-img"
+        />
+    </div>
+
+    <div class="floating-art">
+        <img
+            src="/images/bg003.jpg"
+            alt="Art Background 3 Rep"
+            class="floating-img"
+        />
+    </div>
+
+    <div class="floating-art">
+        <img
+            src="/images/bg005.jpg"
+            alt="Art Background 5 Rep"
             class="floating-img"
         />
     </div>
 </div>
 
 <style>
-    .floating-art-container {
-        perspective: 1000px;
-    }
-
     .floating-art {
         position: absolute;
         opacity: 0;
-        transform: translateY(100px) rotate(0deg) scale(0.8);
-        transition:
-            opacity 0.8s ease,
-            transform 0.1s linear;
+        transform: scale(0.5) rotate(0deg);
         will-change: transform, opacity;
-    }
-
-    .floating-art.visible {
-        opacity: 0.15;
+        top: 0;
+        left: 0;
     }
 
     .floating-img {
-        width: 200px;
+        width: 350px;
         height: auto;
-        border-radius: 12px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        border: 8px solid #fff;
+        transition: transform 0.3s ease;
+        background-color: #eee; /* Placeholder color */
     }
 
-    /* Responsive sizes */
     @media (max-width: 768px) {
         .floating-img {
-            width: 120px;
-        }
-    }
-
-    @media (min-width: 1200px) {
-        .floating-img {
-            width: 280px;
+            width: 180px;
+            border-width: 4px;
         }
     }
 </style>
 
 <script>
-    // Initialize floating art positions and parallax
-    const floatingArts = document.querySelectorAll(".floating-art");
+    import { gsap } from "gsap";
+    import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-    floatingArts.forEach((art, index) => {
-        const element = art as HTMLElement;
-        const xPos = parseFloat(element.dataset.x || "50");
-        const yPos = parseFloat(element.dataset.y || "100");
+    gsap.registerPlugin(ScrollTrigger);
 
-        // Set initial position
-        element.style.left = `${xPos}%`;
-        element.style.top = `${yPos}vh`;
+    const container = document.getElementById("floating-art-container");
+    const arts = document.querySelectorAll(".floating-art");
 
-        // Add slight random rotation
-        const randomRotation = (Math.random() - 0.5) * 20;
-        element.style.setProperty("--rotation", `${randomRotation}deg`);
-    });
-
-    // Scroll-based animation
-    let ticking = false;
-
-    function updateFloatingArt() {
-        const scrollY = window.scrollY;
-        const windowHeight = window.innerHeight;
-        const docHeight = document.documentElement.scrollHeight;
-
-        floatingArts.forEach((art) => {
+    if (container && arts.length > 0) {
+        // Initialize random positions
+        arts.forEach((art) => {
             const element = art as HTMLElement;
-            const speed = parseFloat(element.dataset.speed || "0.3");
-            const yPos = parseFloat(element.dataset.y || "100");
-
-            // Calculate parallax offset
-            const parallaxOffset = scrollY * speed;
-
-            // Calculate visibility based on scroll position
-            const elementTop = (yPos / 100) * docHeight;
-            const visibilityStart = elementTop - windowHeight * 1.5;
-            const visibilityEnd = elementTop + windowHeight;
-
-            if (scrollY > visibilityStart && scrollY < visibilityEnd) {
-                element.classList.add("visible");
-            } else {
-                element.classList.remove("visible");
-            }
-
-            // Apply parallax transform
-            const rotation = parseFloat(
-                element.style.getPropertyValue("--rotation") || "0",
-            );
-            const floatY =
-                Math.sin(
-                    (scrollY + parseFloat(element.dataset.y || "0")) * 0.005,
-                ) * 20;
-
-            element.style.transform = `
-                translateY(${-parallaxOffset + floatY}px) 
-                rotate(${rotation + Math.sin(scrollY * 0.002) * 3}deg)
-                scale(${0.8 + Math.sin(scrollY * 0.001) * 0.1})
-            `;
+            element.style.left = `${Math.random() * 80 + 5}%`;
+            element.style.top = `${Math.random() * 80 + 10}%`;
         });
 
-        ticking = false;
+        // Animate based on scroll
+        arts.forEach((art, i) => {
+            const element = art as HTMLElement;
+
+            // 1. Continuous Floating
+            gsap.to(element, {
+                y: "random(-40, 40)",
+                x: "random(-20, 20)",
+                rotation: "random(-6, 6)",
+                duration: "random(6, 12)",
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+            });
+
+            // 2. Scroll Triggered Appearance
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: "body",
+                    start: `top+=${i * 300} top`, // Staggered start
+                    end: `+=1200`,
+                    toggleActions: "play reverse play reverse",
+                    scrub: 1,
+                },
+            })
+                .fromTo(
+                    element,
+                    { opacity: 0, scale: 0.6, y: 150 },
+                    {
+                        opacity: 0.9,
+                        scale: 1,
+                        y: -150,
+                        duration: 1,
+                        ease: "power2.out",
+                    },
+                )
+                .to(element, {
+                    opacity: 0,
+                    scale: 0.8,
+                    y: -250,
+                    duration: 1,
+                    ease: "power2.in",
+                });
+        });
     }
-
-    // Throttled scroll handler
-    window.addEventListener("scroll", () => {
-        if (!ticking) {
-            requestAnimationFrame(updateFloatingArt);
-            ticking = true;
-        }
-    });
-
-    // Initial call
-    updateFloatingArt();
 </script>
