@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { getBlogs, type Blog } from "../lib/microcms";
 import ThreeScene from "../components/ThreeScene";
 import ContactForm from "../components/ContactForm";
+import ArtGallery from "../components/ArtGallery.astro";
 
 const { contents: blogs } = (await getBlogs({
 	fields: ["id", "title", "publishedAt", "eyecatch"],
@@ -10,50 +11,302 @@ const { contents: blogs } = (await getBlogs({
 ---
 
 <Layout>
-	<main class="container mx-auto px-4 py-8">
-		<h1 class="text-4xl font-bold mb-8">WRO 2026 Portal</h1>
+	<ThreeScene client:only="react" />
 
-		<section class="mb-12">
-			<ThreeScene client:visible />
-		</section>
+	<div class="relative w-full overflow-x-hidden z-10">
+		<!-- Hero Section -->
+		<section
+			class="h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
+		>
+			<!-- Text Overlay -->
+			<div class="z-20 text-center px-4 mix-blend-multiply">
+				<h1
+					class="reveal-text text-6xl md:text-9xl font-bold tracking-tighter mb-6 bg-gradient-to-b from-amber-400 to-purple-700 bg-clip-text text-transparent transform"
+				>
+					Robots Meet Culture
+				</h1>
+				<p
+					class="text-lg md:text-2xl text-slate-600 font-normal tracking-wide animate-fade-in-delay opacity-0 max-w-2xl mx-auto"
+				>
+					WRO 2026 Season - Mie Prefecture Qualifier
+					<br />
+					<span
+						class="text-sm md:text-base opacity-80 mt-2 block text-slate-500"
+					>
+						Exploring how robotics can shape, protect, and grow art
+						& culture.
+					</span>
+				</p>
+			</div>
 
-		<section class="mb-12">
-			<h2 class="text-2xl font-bold mb-4">Contact Us</h2>
-			<ContactForm client:visible />
-		</section>
-
-		<section>
-			<h2 class="text-2xl font-bold mb-4">Latest News & Blogs</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-				{
-					blogs.map((blog) => (
-						<a
-							href={`/blog/${blog.id}`}
-							class="block border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
-						>
-							{blog.eyecatch && (
-								<img
-									src={blog.eyecatch.url}
-									alt={blog.title}
-									width={blog.eyecatch.width}
-									height={blog.eyecatch.height}
-									class="w-full h-48 object-cover"
-								/>
-							)}
-							<div class="p-4">
-								<h3 class="text-xl font-semibold mb-2">
-									{blog.title}
-								</h3>
-								<p class="text-gray-500 text-sm">
-									{new Date(
-										blog.publishedAt,
-									).toLocaleDateString()}
-								</p>
-							</div>
-						</a>
-					))
-				}
+			<!-- Scroll Indicator -->
+			<div
+				class="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20 opacity-70 animate-bounce"
+			>
+				<svg
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					class="text-slate-900"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path>
+				</svg>
 			</div>
 		</section>
-	</main>
+
+		<main class="container mx-auto px-4 py-24 space-y-48 relative z-20">
+			<!-- News Section -->
+			<section>
+				<div
+					class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-gray-200 pb-4"
+				>
+					<h2
+						class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900"
+					>
+						Latest Stories
+					</h2>
+					<a
+						href="/news"
+						class="text-blue-600 hover:text-blue-500 transition-colors mt-4 md:mt-0"
+						>View all archives &rarr;</a
+					>
+				</div>
+
+				<div
+					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+				>
+					{
+						blogs.length > 0 ? (
+							blogs.map((blog) => (
+								<a
+									href={`/blog/${blog.id}`}
+									class="group block bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-500 border border-gray-100 hover:border-blue-200 shadow-sm"
+								>
+									<div class="aspect-video w-full bg-gray-100 relative overflow-hidden">
+										{blog.eyecatch ? (
+											<img
+												src={blog.eyecatch.url}
+												alt={blog.title}
+												width={blog.eyecatch.width}
+												height={blog.eyecatch.height}
+												class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+											/>
+										) : (
+											<div class="w-full h-full flex items-center justify-center text-gray-400">
+												No Image
+											</div>
+										)}
+									</div>
+									<div class="p-8">
+										<p class="text-sm text-slate-500 mb-3">
+											{new Date(
+												blog.publishedAt,
+											).toLocaleDateString()}
+										</p>
+										<h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+											{blog.title}
+										</h3>
+									</div>
+								</a>
+							))
+						) : (
+							<p class="text-slate-500">No updates yet.</p>
+						)
+					}
+				</div>
+			</section>
+
+			<!-- Competitions Section -->
+			<section class="border-t border-gray-200 pt-24">
+				<h2
+					class="text-4xl md:text-6xl font-bold tracking-tight mb-16 text-center text-slate-900"
+				>
+					Competitions
+				</h2>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+					<!-- RoboMission Link -->
+					<a
+						href="/mission"
+						class="block bg-white/60 border border-gray-200 rounded-3xl p-10 hover:bg-white hover:shadow-2xl hover:border-blue-200 transition-all duration-300 group shadow-sm backdrop-blur-sm"
+					>
+						<h3
+							class="text-3xl font-bold mb-4 text-slate-900 group-hover:text-blue-600 transition-colors flex items-center"
+						>
+							RoboMission
+							<svg
+								class="w-6 h-6 ml-4 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+							>
+						</h3>
+						<p class="text-slate-600 leading-relaxed mb-6">
+							The classic WRO category. Teams design robots to
+							solve specific challenges on the field autonomously.
+						</p>
+						<ul class="text-sm text-slate-500 space-y-2">
+							<li class="flex items-center">
+								<span
+									class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"
+								></span>Elementary Category
+							</li>
+							<li class="flex items-center">
+								<span
+									class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"
+								></span>Junior Category
+							</li>
+							<li class="flex items-center">
+								<span
+									class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"
+								></span>Senior Category
+							</li>
+						</ul>
+					</a>
+
+					<!-- RoboSports Link -->
+					<a
+						href="/sports"
+						class="block bg-white/60 border border-gray-200 rounded-3xl p-10 hover:bg-white hover:shadow-2xl hover:border-purple-200 transition-all duration-300 group shadow-sm backdrop-blur-sm"
+					>
+						<h3
+							class="text-3xl font-bold mb-4 text-slate-900 group-hover:text-purple-600 transition-colors flex items-center"
+						>
+							RoboSports
+							<svg
+								class="w-6 h-6 ml-4 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								><path d="M5 12h14M12 5l7 7-7 7"></path></svg
+							>
+						</h3>
+						<p class="text-slate-600 leading-relaxed mb-6">
+							Dynamic robot sports. Teams compete against each
+							other in exciting matches like Double Tennis.
+						</p>
+						<ul class="text-sm text-slate-500 space-y-2">
+							<li class="flex items-center">
+								<span
+									class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"
+								></span>Tennis (Doubles)
+							</li>
+							<li class="flex items-center">
+								<span
+									class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"
+								></span>Ping Pong
+							</li>
+						</ul>
+					</a>
+				</div>
+			</section>
+
+			<!-- About / Sponsor 0 Section -->
+			<section
+				class="py-24 border-t border-gray-200 relative overflow-hidden"
+			>
+				<div
+					class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-50 pointer-events-none"
+				>
+				</div>
+				<div class="relative z-10 max-w-4xl mx-auto text-center">
+					<span
+						class="text-blue-600 font-semibold tracking-wider text-sm uppercase mb-4 block"
+						>Our Philosophy</span
+					>
+					<h2
+						class="text-4xl md:text-5xl font-bold mb-8 tracking-tight text-slate-900"
+					>
+						The "Sponsor 0" Initiative.
+					</h2>
+					<p class="text-xl text-slate-600 leading-relaxed mb-12">
+						We believe in supporting the future of children without
+						commercial strings attached. Our unique "Sponsor 0"
+						program invites partners who value social contribution
+						over advertisement.
+					</p>
+					<a
+						href="/about"
+						class="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-slate-900 transition-all duration-200 bg-white border border-gray-200 rounded-full hover:bg-slate-900 hover:text-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900"
+					>
+						Learn about our Mission
+					</a>
+				</div>
+			</section>
+
+			<!-- Contact Section -->
+			<section class="max-w-4xl mx-auto text-center">
+				<h2
+					class="text-4xl md:text-6xl font-bold tracking-tight mb-8 text-slate-900"
+				>
+					Get in touch.
+				</h2>
+				<p class="text-xl text-slate-600 mb-16">
+					Have questions about the competition? We are here to help.
+				</p>
+
+				<div
+					class="text-left bg-white/80 backdrop-blur-xl p-8 md:p-12 rounded-3xl border border-gray-200 shadow-2xl"
+				>
+					<ContactForm client:visible />
+				</div>
+			</section>
+		</main>
+
+		<!-- Footer -->
+		<footer class="border-t border-gray-200 py-12 mt-24 bg-slate-50">
+			<div
+				class="container mx-auto px-4 text-center text-slate-500 text-sm"
+			>
+				<p>&copy; 2026 WRO Mie. All rights reserved.</p>
+			</div>
+		</footer>
+	</div>
 </Layout>
+
+<script>
+	import { gsap } from "gsap";
+	import { ScrollTrigger } from "gsap/ScrollTrigger";
+	gsap.registerPlugin(ScrollTrigger);
+
+	// Text Reveal Logic - Simplified for stability
+	// Animating the whole element to ensure it remains visible
+	gsap.fromTo(
+		".reveal-text",
+		{
+			opacity: 0,
+			y: 100,
+			scale: 0.8,
+			filter: "blur(10px)",
+		},
+		{
+			opacity: 1,
+			y: 0,
+			scale: 1,
+			filter: "blur(0px)",
+			duration: 4.0, // Slow and dramatic
+			ease: "power2.out",
+			delay: 0.5, // Slight delay to ensure load
+		},
+	);
+
+	// Fade in delay
+	gsap.to(".animate-fade-in-delay", {
+		opacity: 1,
+		y: 0,
+		duration: 1,
+		delay: 0.8,
+		ease: "power2.out",
+	});
+</script>
+
+<style>
+	/* Removed custom keyframes in favor of GSAP */
+</style>

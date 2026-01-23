@@ -1,0 +1,71 @@
+<div
+    id="custom-cursor"
+    class="fixed top-0 left-0 w-8 h-8 pointer-events-none z-[9999] mix-blend-exclusion hidden md:block"
+>
+    <div
+        class="cursor-dot w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    >
+    </div>
+    <div
+        class="cursor-circle w-full h-full border border-white rounded-full absolute top-0 left-0 opacity-50 transition-transform duration-300 ease-out"
+    >
+    </div>
+</div>
+
+<script>
+    import gsap from "gsap";
+
+    const cursor = document.getElementById("custom-cursor");
+    const circle = cursor?.querySelector(".cursor-circle");
+
+    // Check if device supports fine pointer (mouse)
+    if (cursor && circle && window.matchMedia("(pointer: fine)").matches) {
+        // Center the cursor wrapper on the mouse
+        gsap.set(cursor, { xPercent: -50, yPercent: -50 });
+
+        // QuickTo is more performant than .to for mouse movement
+        const xTo = gsap.quickTo(cursor, "x", {
+            duration: 0.1,
+            ease: "power3",
+        });
+        const yTo = gsap.quickTo(cursor, "y", {
+            duration: 0.1,
+            ease: "power3",
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            xTo(e.clientX);
+            yTo(e.clientY);
+        });
+
+        // Add hover effects to interactive elements
+        const hoverables = document.querySelectorAll(
+            "a, button, input, textarea, .hover-trigger",
+        );
+
+        hoverables.forEach((el) => {
+            el.addEventListener("mouseenter", () => {
+                gsap.to(circle, {
+                    scale: 2.5,
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                    duration: 0.3,
+                });
+            });
+            el.addEventListener("mouseleave", () => {
+                gsap.to(circle, {
+                    scale: 1,
+                    backgroundColor: "transparent",
+                    duration: 0.3,
+                });
+            });
+        });
+
+        // Hide cursor when leaving window
+        document.addEventListener("mouseleave", () => {
+            gsap.to(cursor, { opacity: 0, duration: 0.5 });
+        });
+        document.addEventListener("mouseenter", () => {
+            gsap.to(cursor, { opacity: 1, duration: 0.5 });
+        });
+    }
+</script>

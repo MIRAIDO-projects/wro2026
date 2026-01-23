@@ -1,0 +1,161 @@
+---
+// Floating Art Background - paintings flow randomly in the background with scroll
+---
+
+<div
+    class="floating-art-container fixed inset-0 pointer-events-none overflow-hidden"
+    style="z-index: 5;"
+>
+    <!-- Picasso Style -->
+    <div class="floating-art" data-speed="0.3" data-x="10" data-y="120">
+        <img src="/images/picasso_robot.png" alt="" class="floating-img" />
+    </div>
+
+    <!-- Warhol Style -->
+    <div class="floating-art" data-speed="0.5" data-x="70" data-y="200">
+        <img src="/images/warhol_robot.png" alt="" class="floating-img" />
+    </div>
+
+    <!-- Abstract Style -->
+    <div class="floating-art" data-speed="0.4" data-x="30" data-y="350">
+        <img
+            src="/images/abstract_music_robot.png"
+            alt=""
+            class="floating-img"
+        />
+    </div>
+
+    <!-- Duplicates for more coverage -->
+    <div class="floating-art" data-speed="0.25" data-x="80" data-y="450">
+        <img src="/images/picasso_robot.png" alt="" class="floating-img" />
+    </div>
+
+    <div class="floating-art" data-speed="0.45" data-x="15" data-y="550">
+        <img src="/images/warhol_robot.png" alt="" class="floating-img" />
+    </div>
+
+    <div class="floating-art" data-speed="0.35" data-x="60" data-y="700">
+        <img
+            src="/images/abstract_music_robot.png"
+            alt=""
+            class="floating-img"
+        />
+    </div>
+</div>
+
+<style>
+    .floating-art-container {
+        perspective: 1000px;
+    }
+
+    .floating-art {
+        position: absolute;
+        opacity: 0;
+        transform: translateY(100px) rotate(0deg) scale(0.8);
+        transition:
+            opacity 0.8s ease,
+            transform 0.1s linear;
+        will-change: transform, opacity;
+    }
+
+    .floating-art.visible {
+        opacity: 0.15;
+    }
+
+    .floating-img {
+        width: 200px;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Responsive sizes */
+    @media (max-width: 768px) {
+        .floating-img {
+            width: 120px;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .floating-img {
+            width: 280px;
+        }
+    }
+</style>
+
+<script>
+    // Initialize floating art positions and parallax
+    const floatingArts = document.querySelectorAll(".floating-art");
+
+    floatingArts.forEach((art, index) => {
+        const element = art as HTMLElement;
+        const xPos = parseFloat(element.dataset.x || "50");
+        const yPos = parseFloat(element.dataset.y || "100");
+
+        // Set initial position
+        element.style.left = `${xPos}%`;
+        element.style.top = `${yPos}vh`;
+
+        // Add slight random rotation
+        const randomRotation = (Math.random() - 0.5) * 20;
+        element.style.setProperty("--rotation", `${randomRotation}deg`);
+    });
+
+    // Scroll-based animation
+    let ticking = false;
+
+    function updateFloatingArt() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+
+        floatingArts.forEach((art) => {
+            const element = art as HTMLElement;
+            const speed = parseFloat(element.dataset.speed || "0.3");
+            const yPos = parseFloat(element.dataset.y || "100");
+
+            // Calculate parallax offset
+            const parallaxOffset = scrollY * speed;
+
+            // Calculate visibility based on scroll position
+            const elementTop = (yPos / 100) * docHeight;
+            const visibilityStart = elementTop - windowHeight * 1.5;
+            const visibilityEnd = elementTop + windowHeight;
+
+            if (scrollY > visibilityStart && scrollY < visibilityEnd) {
+                element.classList.add("visible");
+            } else {
+                element.classList.remove("visible");
+            }
+
+            // Apply parallax transform
+            const rotation = parseFloat(
+                element.style.getPropertyValue("--rotation") || "0",
+            );
+            const floatY =
+                Math.sin(
+                    (scrollY + parseFloat(element.dataset.y || "0")) * 0.005,
+                ) * 20;
+
+            element.style.transform = `
+                translateY(${-parallaxOffset + floatY}px) 
+                rotate(${rotation + Math.sin(scrollY * 0.002) * 3}deg)
+                scale(${0.8 + Math.sin(scrollY * 0.001) * 0.1})
+            `;
+        });
+
+        ticking = false;
+    }
+
+    // Throttled scroll handler
+    window.addEventListener("scroll", () => {
+        if (!ticking) {
+            requestAnimationFrame(updateFloatingArt);
+            ticking = true;
+        }
+    });
+
+    // Initial call
+    updateFloatingArt();
+</script>

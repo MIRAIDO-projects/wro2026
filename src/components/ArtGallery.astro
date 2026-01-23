@@ -1,0 +1,174 @@
+---
+// Art Gallery with Scroll Trigger Animation
+---
+
+<section class="art-gallery-section py-24 relative overflow-hidden">
+    <div class="container mx-auto px-4">
+        <h2
+            class="text-4xl md:text-5xl font-bold text-center mb-4 text-slate-900"
+        >
+            Art & Culture
+        </h2>
+        <p class="text-xl text-center text-slate-600 mb-16 max-w-2xl mx-auto">
+            ロボティクスとアートの融合 - Robots Meet Culture
+        </p>
+
+        <div
+            class="gallery-grid grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+        >
+            <!-- Picasso Style -->
+            <div class="art-card" data-scroll-reveal>
+                <div
+                    class="art-frame relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-700 hover:scale-105 hover:rotate-1"
+                >
+                    <img
+                        src="/images/picasso_robot.png"
+                        alt="Cubist Robot - Picasso Style"
+                        class="w-full h-auto"
+                        loading="lazy"
+                    />
+                    <div
+                        class="art-overlay absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end"
+                    >
+                        <div class="p-6">
+                            <h3 class="text-white text-xl font-bold">
+                                Geometric Dreams
+                            </h3>
+                            <p class="text-white/80 text-sm">
+                                Cubist interpretation of robotics
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warhol Style -->
+            <div class="art-card" data-scroll-reveal style="--delay: 0.2s">
+                <div
+                    class="art-frame relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-700 hover:scale-105 hover:-rotate-1"
+                >
+                    <img
+                        src="/images/warhol_robot.png"
+                        alt="Pop Art Robot - Warhol Style"
+                        class="w-full h-auto"
+                        loading="lazy"
+                    />
+                    <div
+                        class="art-overlay absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end"
+                    >
+                        <div class="p-6">
+                            <h3 class="text-white text-xl font-bold">
+                                Pop Icons
+                            </h3>
+                            <p class="text-white/80 text-sm">
+                                Andy Warhol meets technology
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Abstract Style -->
+            <div class="art-card" data-scroll-reveal style="--delay: 0.4s">
+                <div
+                    class="art-frame relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-700 hover:scale-105 hover:rotate-1"
+                >
+                    <img
+                        src="/images/abstract_music_robot.png"
+                        alt="Abstract Music Robot"
+                        class="w-full h-auto"
+                        loading="lazy"
+                    />
+                    <div
+                        class="art-overlay absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end"
+                    >
+                        <div class="p-6">
+                            <h3 class="text-white text-xl font-bold">
+                                Musical Fusion
+                            </h3>
+                            <p class="text-white/80 text-sm">
+                                Abstract expressionism & robots
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .art-gallery-section {
+        background: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.9),
+            rgba(248, 250, 252, 0.95)
+        );
+    }
+
+    .art-card {
+        opacity: 0;
+        transform: translateY(80px) scale(0.9);
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        transition-delay: var(--delay, 0s);
+    }
+
+    .art-card.revealed {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .art-frame {
+        border: 8px solid #1e293b;
+        background: #fff;
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            inset 0 0 0 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .art-frame:hover {
+        box-shadow:
+            0 35px 60px -15px rgba(0, 0, 0, 0.35),
+            inset 0 0 0 4px rgba(255, 255, 255, 0.2);
+    }
+
+    .art-frame img {
+        transition: transform 0.5s ease;
+    }
+
+    .art-frame:hover img {
+        transform: scale(1.05);
+    }
+
+    /* Google colors accent */
+    .art-card:nth-child(1) .art-frame {
+        border-color: #4285f4;
+    }
+    .art-card:nth-child(2) .art-frame {
+        border-color: #ea4335;
+    }
+    .art-card:nth-child(3) .art-frame {
+        border-color: #34a853;
+    }
+</style>
+
+<script>
+    // Scroll Reveal Animation
+    const observerOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.2,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("revealed");
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll("[data-scroll-reveal]").forEach((el) => {
+        observer.observe(el);
+    });
+</script>

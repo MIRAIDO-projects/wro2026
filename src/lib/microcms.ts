@@ -3,18 +3,18 @@ import { createClient, type MicroCMSQueries, type MicroCMSImage, type MicroCMSDa
 // --- Type Definitions ---
 
 export type Blog = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  revisedAt: string;
-  title: string;
-  content: string;
-  eyecatch?: MicroCMSImage;
-  category: Function;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+    revisedAt: string;
+    title: string;
+    content: string;
+    eyecatch?: MicroCMSImage;
+    category: BlogCategory;
 };
 
-export type Function = {
+export type BlogCategory = {
     id: string;
     createdAt: string;
     updatedAt: string;
@@ -24,30 +24,30 @@ export type Function = {
 }
 
 export type News = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  revisedAt: string;
-  title: string;
-  content: string;
-  category: Category;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+    revisedAt: string;
+    title: string;
+    content: string;
+    category: Category;
 };
 
 export type Category = {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  revisedAt: string;
-  name: string;
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+    revisedAt: string;
+    name: string;
 };
 
 export type BlogResponse = {
-  totalCount: number;
-  offset: number;
-  limit: number;
-  contents: Blog[];
+    totalCount: number;
+    offset: number;
+    limit: number;
+    contents: Blog[];
 };
 
 export type NewsResponse = {
@@ -67,8 +67,8 @@ export type NewsResponse = {
 // User didn't provide keys yet, so we will set up the structure.
 
 export const client = createClient({
-  serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN || "YOUR_DOMAIN",
-  apiKey: import.meta.env.MICROCMS_API_KEY || "YOUR_API_KEY",
+    serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN || "YOUR_DOMAIN",
+    apiKey: import.meta.env.MICROCMS_API_KEY || "YOUR_API_KEY",
 });
 
 // --- Fetch Functions ---
@@ -100,8 +100,8 @@ export const getBlogs = async (queries?: MicroCMSQueries) => {
 };
 
 export const getBlogDetail = async (
-  contentId: string,
-  queries?: MicroCMSQueries
+    contentId: string,
+    queries?: MicroCMSQueries
 ) => {
     try {
         return await client.getListDetail<Blog>({
@@ -110,7 +110,7 @@ export const getBlogDetail = async (
             queries,
         });
     } catch (e) {
-         return {
+        return {
             id: contentId,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -124,10 +124,10 @@ export const getBlogDetail = async (
 };
 
 export const getNews = async (queries?: MicroCMSQueries) => {
-     try {
+    try {
         return await client.get<NewsResponse>({ endpoint: "news", queries });
     } catch (e) {
-         return {
+        return {
             totalCount: 0,
             offset: 0,
             limit: 10,
@@ -139,14 +139,14 @@ export const getNews = async (queries?: MicroCMSQueries) => {
 export const getNewsDetail = async (
     contentId: string,
     queries?: MicroCMSQueries
-  ) => {
-      try {
-          return await client.getListDetail<News>({
-              endpoint: "news",
-              contentId,
-              queries,
-          });
-      } catch (e) {
-          return null;
-      }
-  };
+) => {
+    try {
+        return await client.getListDetail<News>({
+            endpoint: "news",
+            contentId,
+            queries,
+        });
+    } catch (e) {
+        return null;
+    }
+};

@@ -20,15 +20,53 @@ if (!blog) {
 ---
 
 <Layout title={blog.title}>
-    <main class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-4">{blog.title}</h1>
-        <div class="text-gray-500 text-sm mb-8">
-            <p>Published: {new Date(blog.publishedAt).toLocaleDateString()}</p>
-            <span class="bg-gray-200 px-2 py-1 rounded text-xs"
-                >{blog.category?.name}</span
+    <div class="bg-slate-50 min-h-screen">
+        <main class="container mx-auto px-4 py-24 max-w-4xl">
+            <a
+                href="/"
+                class="text-slate-500 hover:text-blue-600 transition-colors mb-8 inline-block font-medium"
+                >&larr; Back to Home</a
             >
-        </div>
 
-        <article class="prose max-w-none" set:html={blog.content} />
-    </main>
+            <h1
+                class="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-slate-900"
+            >
+                {blog.title}
+            </h1>
+
+            <div
+                class="flex items-center gap-4 text-slate-500 text-sm mb-12 border-b border-gray-200 pb-8"
+            >
+                <time datetime={blog.publishedAt}
+                    >{new Date(blog.publishedAt).toLocaleDateString()}</time
+                >
+                {
+                    blog.category && (
+                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">
+                            {blog.category.name}
+                        </span>
+                    )
+                }
+            </div>
+
+            {
+                blog.eyecatch && (
+                    <div class="mb-12 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                        <img
+                            src={blog.eyecatch.url}
+                            alt={blog.title}
+                            width={blog.eyecatch.width}
+                            height={blog.eyecatch.height}
+                            class="w-full h-auto"
+                        />
+                    </div>
+                )
+            }
+
+            <article
+                class="prose prose-lg max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-slate-900 prose-p:text-slate-600 prose-a:text-blue-600 hover:prose-a:text-blue-500 prose-img:rounded-xl prose-strong:text-slate-900"
+                set:html={blog.content}
+            />
+        </main>
+    </div>
 </Layout>

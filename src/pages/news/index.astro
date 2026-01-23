@@ -1,0 +1,108 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getBlogs, type Blog } from "../../lib/microcms";
+
+const { contents: blogs } = (await getBlogs({
+    fields: ["id", "title", "publishedAt", "eyecatch", "category"],
+})) as { contents: Blog[] };
+---
+
+<Layout title="News & Updates - WRO 2026 Mie">
+    <div class="relative w-full overflow-x-hidden min-h-screen bg-slate-50">
+        <!-- Hero -->
+        <section class="relative pt-32 pb-20 px-4">
+            <div
+                class="absolute inset-0 z-0 pointer-events-none overflow-hidden"
+            >
+                <div
+                    class="absolute top-0 left-1/2 w-[800px] h-[800px] bg-blue-100/50 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2"
+                >
+                </div>
+            </div>
+            <div class="container mx-auto max-w-5xl relative z-10 text-center">
+                <span
+                    class="text-blue-600 font-bold tracking-wider text-sm ring-1 ring-blue-200 bg-blue-50 px-4 py-2 rounded-full mb-6 inline-block uppercase"
+                >
+                    Updates
+                </span>
+                <h1
+                    class="text-4xl md:text-6xl font-bold tracking-tight mb-8 text-slate-900"
+                >
+                    Latest Stories
+                </h1>
+                <p
+                    class="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed"
+                >
+                    Stay updated with the latest news, announcements, and
+                    stories from the WRO 2026 Mie Qualifier.
+                </p>
+            </div>
+        </section>
+
+        <!-- Blog Grid -->
+        <main class="container mx-auto max-w-6xl px-4 py-12 pb-24">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {
+                    blogs.length > 0 ? (
+                        blogs.map((blog) => (
+                            <a
+                                href={`/blog/${blog.id}`}
+                                class="group block bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 hover:-translate-y-1"
+                            >
+                                <div class="aspect-video w-full bg-gray-100 relative overflow-hidden">
+                                    {blog.eyecatch ? (
+                                        <img
+                                            src={blog.eyecatch.url}
+                                            alt={blog.title}
+                                            width={blog.eyecatch.width}
+                                            height={blog.eyecatch.height}
+                                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50">
+                                            No Image
+                                        </div>
+                                    )}
+                                    <div class="absolute top-4 left-4">
+                                        <span class="bg-white/90 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                                            {new Date(
+                                                blog.publishedAt,
+                                            ).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="p-8">
+                                    <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-3">
+                                        {blog.title}
+                                    </h3>
+                                    <div class="flex items-center text-sm text-slate-500">
+                                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2" />
+                                        Read article
+                                    </div>
+                                </div>
+                            </a>
+                        ))
+                    ) : (
+                        <div class="col-span-full text-center py-20 text-slate-500">
+                            No articles found.
+                        </div>
+                    )
+                }
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 py-12 bg-white">
+            <div
+                class="container mx-auto px-4 text-center text-slate-500 text-sm"
+            >
+                <p>&copy; 2026 WRO Mie. All rights reserved.</p>
+                <a
+                    href="/"
+                    class="inline-block mt-4 text-blue-500 hover:text-blue-700 font-medium"
+                    >Back to Home</a
+                >
+            </div>
+        </footer>
+    </div>
+</Layout>
