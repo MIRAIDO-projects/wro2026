@@ -1,6 +1,7 @@
 ---
-// Floating Art Background - paintings flow randomly in the background with scroll
-// Using GSAP for smooth, reliable animations
+// Floating Art Background
+// Fixed Z-Index to 5 to avoid blocking content.
+// Image visibility prioritized as background element.
 ---
 
 <div
@@ -8,110 +9,44 @@
     class="fixed inset-0 pointer-events-none overflow-hidden"
     style="z-index: 5;"
 >
-    <!-- Image 1 -->
-    <div class="floating-art">
-        <img
-            src="/images/bg001.jpg"
-            alt="Art Background 1"
-            class="floating-img"
-        />
-    </div>
-
-    <!-- Image 2 -->
-    <div class="floating-art">
-        <img
-            src="/images/bg002.jpg"
-            alt="Art Background 2"
-            class="floating-img"
-        />
-    </div>
-
-    <!-- Image 3 -->
-    <div class="floating-art">
-        <img
-            src="/images/bg003.jpg"
-            alt="Art Background 3"
-            class="floating-img"
-        />
-    </div>
-
-    <!-- Image 4 -->
-    <div class="floating-art">
-        <img
-            src="/images/bg004.jpg"
-            alt="Art Background 4"
-            class="floating-img"
-        />
-    </div>
-
-    <!-- Image 5 -->
-    <div class="floating-art">
-        <img
-            src="/images/bg005.jpg"
-            alt="Art Background 5"
-            class="floating-img"
-        />
-    </div>
-
-    <!-- Image 6 -->
-    <div class="floating-art">
-        <img
-            src="/images/bg006.jpg"
-            alt="Art Background 6"
-            class="floating-img"
-        />
-    </div>
-
-    <!-- Duplicates for more density if needed, picking random ones -->
-    <div class="floating-art">
-        <img
-            src="/images/bg001.jpg"
-            alt="Art Background 1 Rep"
-            class="floating-img"
-        />
-    </div>
-
-    <div class="floating-art">
-        <img
-            src="/images/bg003.jpg"
-            alt="Art Background 3 Rep"
-            class="floating-img"
-        />
-    </div>
-
-    <div class="floating-art">
-        <img
-            src="/images/bg005.jpg"
-            alt="Art Background 5 Rep"
-            class="floating-img"
-        />
-    </div>
+    {/* Statically output potential images. Browser handles loading/error. */}
+    {
+        Array.from({ length: 12 }).map((_, i) => {
+            const num = String(i + 1).padStart(3, "0");
+            const src = `/images/bg${num}.jpg`;
+            return (
+                <img
+                    src={src}
+                    class="floating-art visually-hidden"
+                    alt=""
+                    onerror="this.style.display='none'"
+                    data-index={i}
+                />
+            );
+        })
+    }
 </div>
 
 <style>
     .floating-art {
         position: absolute;
-        opacity: 0;
-        transform: scale(0.5) rotate(0deg);
-        will-change: transform, opacity;
-        top: 0;
-        left: 0;
-    }
-
-    .floating-img {
-        width: 350px;
+        width: 300px;
         height: auto;
+        opacity: 0;
         border-radius: 8px;
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-        border: 8px solid #fff;
-        transition: transform 0.3s ease;
-        background-color: #eee; /* Placeholder color */
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        border: 6px solid rgba(255, 255, 255, 0.9);
+        display: block;
+        object-fit: cover;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 
     @media (max-width: 768px) {
-        .floating-img {
-            width: 180px;
-            border-width: 4px;
+        .floating-art {
+            width: 150px;
+            border-width: 3px;
         }
     }
 </style>
@@ -122,60 +57,66 @@
 
     gsap.registerPlugin(ScrollTrigger);
 
-    const container = document.getElementById("floating-art-container");
-    const arts = document.querySelectorAll(".floating-art");
+    const images = document.querySelectorAll(".floating-art");
 
-    if (container && arts.length > 0) {
-        // Initialize random positions
-        arts.forEach((art) => {
-            const element = art as HTMLElement;
-            element.style.left = `${Math.random() * 80 + 5}%`;
-            element.style.top = `${Math.random() * 80 + 10}%`;
+    const shuffled = Array.from(images).sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 6);
+
+    shuffled.slice(6).forEach((el) => el.remove());
+
+    selected.forEach((img, i) => {
+        const el = img as HTMLElement;
+
+        const x = Math.random() * 80 + 10;
+        const y = Math.random() * 80 + 10;
+        const rot = (Math.random() - 0.5) * 60;
+        const scale = 0.5 + Math.random() * 0.5;
+
+        el.style.left = `${x}%`;
+        el.style.top = `${y}%`;
+
+        gsap.set(el, {
+            xPercent: -50,
+            yPercent: -50,
+            y: 200,
+            scale: scale * 0.5,
+            rotation: rot,
+            opacity: 0,
         });
 
-        // Animate based on scroll
-        arts.forEach((art, i) => {
-            const element = art as HTMLElement;
+        gsap.to(el, {
+            x: `random(-30, 30)`,
+            rotation: `random(${rot - 10}, ${rot + 10})`,
+            duration: `random(6, 12)`,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+        });
 
-            // 1. Continuous Floating
-            gsap.to(element, {
-                y: "random(-40, 40)",
-                x: "random(-20, 20)",
-                rotation: "random(-6, 6)",
-                duration: "random(6, 12)",
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut",
-            });
+        const triggerStart = window.innerHeight * 0.5 + i * 200;
 
-            // 2. Scroll Triggered Appearance
-            gsap.timeline({
-                scrollTrigger: {
-                    trigger: "body",
-                    start: `top+=${i * 300} top`, // Staggered start
-                    end: `+=1200`,
-                    toggleActions: "play reverse play reverse",
-                    scrub: 1,
-                },
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: "body",
+                start: `${triggerStart}px top`,
+                end: `+=${window.innerHeight * 1.5}`,
+                scrub: 1,
+                toggleActions: "play reverse play reverse",
+            },
+        })
+            .to(el, {
+                y: -100,
+                scale: scale,
+                opacity: 1,
+                duration: 1,
+                ease: "power2.out",
             })
-                .fromTo(
-                    element,
-                    { opacity: 0, scale: 0.6, y: 150 },
-                    {
-                        opacity: 0.9,
-                        scale: 1,
-                        y: -150,
-                        duration: 1,
-                        ease: "power2.out",
-                    },
-                )
-                .to(element, {
-                    opacity: 0,
-                    scale: 0.8,
-                    y: -250,
-                    duration: 1,
-                    ease: "power2.in",
-                });
-        });
-    }
+            .to(el, {
+                y: -300,
+                opacity: 0,
+                scale: scale * 1.2,
+                duration: 1,
+                ease: "power2.in",
+            });
+    });
 </script>

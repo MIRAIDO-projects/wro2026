@@ -1,5 +1,5 @@
 import React, { useRef, useMemo } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Text } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -357,7 +357,7 @@ function MusicScene() {
             {melodyPatterns.map((melody, i) => (
                 <MelodyNote
                     key={`note-${i}`}
-                    baseX={-4.5}
+                    baseX={-4.5} // Keep base, but check viewport inside MelodyNote ideally, or assume scaling handles it
                     baseY={2.5}
                     scale={0.22 + (i % 3) * 0.02}
                     speed={0.3 + i * 0.03}
@@ -366,7 +366,7 @@ function MusicScene() {
                 />
             ))}
 
-            {/* Morphing Musical Symbols */}
+            {/* Morphing Musical Symbols - Adjusted scale for mobile visibility if needed, but Treble is main issue */}
             <MorphingSymbol baseX={-4.5} baseY={2.5} scale={0.3} speed={0.25} phaseOffset={2.5} />
             <MorphingSymbol baseX={-4.5} baseY={2.5} scale={0.25} speed={0.2} phaseOffset={4.0} />
 
@@ -382,6 +382,11 @@ function TrebleClef() {
     const colorIndex = useRef(Math.floor(Math.random() * colors.length));
     const nextColorTime = useRef(0);
     const currentColorHex = useRef(colors[colorIndex.current]);
+    const { width } = useThree((state) => state.viewport);
+    const isMobile = width < 8; // Adjust threshold
+
+    // Move closer to center on mobile to avoid cut-off
+    const positionX = isMobile ? -2.2 : -5.8;
 
     useFrame((state) => {
         const t = state.clock.getElapsedTime();
@@ -397,11 +402,14 @@ function TrebleClef() {
             // Gentle floating
             groupRef.current.position.y = 2.5 + Math.sin(t * 0.6) * 0.2;
             groupRef.current.rotation.z = Math.sin(t * 0.4) * 0.1;
+
+            // Smoothly interpolate position for responsiveness
+            groupRef.current.position.x += (positionX - groupRef.current.position.x) * 0.1;
         }
     });
 
     return (
-        <group ref={groupRef} position={[-5.8, 2.5, 0.5]}>
+        <group ref={groupRef} position={[positionX, 2.5, 0.5]}>
             <Text
                 fontSize={2.5}
                 color={currentColorHex.current}
@@ -777,8 +785,9 @@ function ResponsiveCamera() {
 
         // Adjust camera for mobile
         const isMobile = width < 768;
-        const targetZ = isMobile ? 14 : 10;
-        const targetFov = isMobile ? 50 : 45;
+        // Increased targetZ for mobile to fit the whole scene (including treble clef on the left)
+        const targetZ = isMobile ? 18.5 : 10;
+        const targetFov = isMobile ? 55 : 45; // Slightly wider FOV for mobile too
 
         // Smooth camera position transition
         camera.position.z += (targetZ - camera.position.z) * 0.05;
