@@ -1,8 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getBlogs, getBlogDetail, type Blog } from "../../lib/microcms";
+import { getBlogs, getBlogDetail } from "../../lib/microcms";
 
 export async function getStaticPaths() {
+    // Fetch ALL blogs without filter to ensure all paths are generated.
+    // Filtering logic should be handled at the listing level (index.astro),
+    // but individual pages should be accessible if they exist.
     const response = await getBlogs({ fields: ["id"] });
     return response.contents.map((content: any) => ({
         params: {
@@ -25,7 +28,7 @@ if (!blog) {
             <a
                 href="/"
                 class="text-slate-500 hover:text-blue-600 transition-colors mb-8 inline-block font-medium"
-                >&larr; Back to Home</a
+                >&larr; トップへ戻る</a
             >
 
             <h1
@@ -50,13 +53,13 @@ if (!blog) {
             </div>
 
             {
-                blog.eyecatch && (
+                blog.thumbnail && (
                     <div class="mb-12 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
                         <img
-                            src={blog.eyecatch.url}
+                            src={blog.thumbnail.url}
                             alt={blog.title}
-                            width={blog.eyecatch.width}
-                            height={blog.eyecatch.height}
+                            width={blog.thumbnail.width}
+                            height={blog.thumbnail.height}
                             class="w-full h-auto"
                         />
                     </div>

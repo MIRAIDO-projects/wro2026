@@ -10,7 +10,8 @@ export type Blog = {
     revisedAt: string;
     title: string;
     content: string;
-    eyecatch?: MicroCMSImage;
+    thumbnail?: MicroCMSImage; // Correct field ID from CMS Schema
+    targetSites?: string[];    // Selectable Field
     category: BlogCategory;
 };
 
@@ -59,13 +60,6 @@ export type NewsResponse = {
 
 // --- Client Initialization ---
 
-// TODO: Replace with environment variables in production
-// const SERVICE_DOMAIN = import.meta.env.MICROCMS_SERVICE_DOMAIN;
-// const API_KEY = import.meta.env.MICROCMS_API_KEY;
-
-// For development/demo without keys, we can use mock data or non-working client.
-// User didn't provide keys yet, so we will set up the structure.
-
 export const client = createClient({
     serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN || "YOUR_DOMAIN",
     apiKey: import.meta.env.MICROCMS_API_KEY || "YOUR_API_KEY",
@@ -73,12 +67,11 @@ export const client = createClient({
 
 // --- Fetch Functions ---
 
-export const getBlogs = async (queries?: MicroCMSQueries) => {
+export const getBlogs = async (queries?: MicroCMSQueries): Promise<BlogResponse> => {
     try {
         return await client.get<BlogResponse>({ endpoint: "blogs", queries });
     } catch (error) {
-        console.warn("MicroCMS fetch failed (likely no API key). Returning mock data.");
-        // Return mock data for development if fetch fails
+        console.warn("MicroCMS fetch failed. Returning mock data.");
         return {
             totalCount: 1,
             offset: 0,
@@ -90,19 +83,21 @@ export const getBlogs = async (queries?: MicroCMSQueries) => {
                     updatedAt: new Date().toISOString(),
                     publishedAt: new Date().toISOString(),
                     revisedAt: new Date().toISOString(),
-                    title: "Mock Blog Post",
-                    content: "<p>This is a mock blog post because no API key is configured.</p>",
-                    category: { id: "tech", name: "Technology", createdAt: "", updatedAt: "", publishedAt: "", revisedAt: "" }
+                    title: "【サンプル】API接続エラー",
+                    content: "<p>APIキーの設定を確認してください。</p>",
+                    thumbnail: { url: "https://placehold.jp/150x150.png", height: 150, width: 150 },
+                    category: { id: "info", name: "お知らせ", createdAt: "", updatedAt: "", publishedAt: "", revisedAt: "" },
+                    targetSites: ["sample"]
                 }
-            ] as unknown as Blog[]
-        }
+            ]
+        };
     }
 };
 
 export const getBlogDetail = async (
     contentId: string,
     queries?: MicroCMSQueries
-) => {
+): Promise<Blog> => {
     try {
         return await client.getListDetail<Blog>({
             endpoint: "blogs",
@@ -116,14 +111,15 @@ export const getBlogDetail = async (
             updatedAt: new Date().toISOString(),
             publishedAt: new Date().toISOString(),
             revisedAt: new Date().toISOString(),
-            title: `Mock Blog Post ${contentId}`,
-            content: "<p>This is a mock blog post detail.</p>",
-            category: { id: "tech", name: "Technology", createdAt: "", updatedAt: "", publishedAt: "", revisedAt: "" }
-        } as unknown as Blog;
+            title: `【サンプル】記事詳細 ${contentId}`,
+            content: "<p>詳細ページのサンプルです。APIキーを設定すると実際の記事が表示されます。</p>",
+            thumbnail: { url: "https://placehold.jp/150x150.png", height: 150, width: 150 },
+            category: { id: "info", name: "お知らせ", createdAt: "", updatedAt: "", publishedAt: "", revisedAt: "" }
+        };
     }
 };
 
-export const getNews = async (queries?: MicroCMSQueries) => {
+export const getNews = async (queries?: MicroCMSQueries): Promise<NewsResponse> => {
     try {
         return await client.get<NewsResponse>({ endpoint: "news", queries });
     } catch (e) {
@@ -132,7 +128,7 @@ export const getNews = async (queries?: MicroCMSQueries) => {
             offset: 0,
             limit: 10,
             contents: []
-        }
+        };
     }
 };
 

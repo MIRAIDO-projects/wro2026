@@ -1,0 +1,84 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// Thank You Page - Success state
+---
+
+<Layout title="Thank You">
+    <div
+        class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white"
+    >
+        <!-- Decorative Background -->
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-bl from-green-50 to-emerald-50 rounded-full blur-3xl opacity-60 pointer-events-none"
+        >
+        </div>
+
+        <div class="z-10 text-center px-6 max-w-2xl relative fade-in-up">
+            <!-- Success Icon -->
+            <div
+                class="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-8 shadow-sm"
+            >
+                <svg
+                    class="w-10 h-10 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+
+            <h1
+                class="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight"
+            >
+                Thank You!
+            </h1>
+
+            <p class="text-lg md:text-xl text-slate-600 mb-10 leading-relaxed">
+                お問い合わせありがとうございます。<br />
+                送信いただいた内容は無事に受け付けました。<br />
+                確認後、担当者よりご連絡させていただきます。
+            </p>
+
+            <a
+                href="/"
+                class="group inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all hover:shadow-xl hover:-translate-y-1"
+            >
+                <span>Back to Top</span>
+                <svg
+                    class="w-4 h-4 transition-transform group-hover:-translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    ><path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg
+                >
+            </a>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    /* Simple entry animation */
+    .fade-in-up {
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

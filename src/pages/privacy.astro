@@ -1,0 +1,71 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// Privacy Policy Page
+---
+
+<Layout title="Privacy Policy - WRO 2026 Mie">
+    <div class="bg-slate-50 min-h-screen">
+        <main class="container mx-auto px-4 py-32 max-w-4xl relative z-10">
+            <div class="text-center mb-16">
+                <h1
+                    class="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-slate-900"
+                >
+                    プライバシーポリシー
+                </h1>
+                <p class="text-slate-500">
+                    Last Updated: {new Date().toLocaleDateString("ja-JP")}
+                </p>
+            </div>
+
+            <div
+                class="bg-white p-8 md:p-12 rounded-3xl border border-gray-200 shadow-sm"
+            >
+                <article
+                    class="prose prose-slate max-w-none prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-600"
+                >
+                    <h3>1. 個人情報の収集と利用</h3>
+                    <p>
+                        WRO 2026
+                        三重県予選実行委員会（以下「当委員会」）は、大会への参加登録、お問い合わせ、およびご協賛の申し込み等において、氏名、メールアドレス、電話番号などの個人情報をお預かりする場合があります。これらの情報は、以下の目的のためにのみ利用いたします。
+                    </p>
+                    <ul>
+                        <li>大会運営および関連するご連絡のため</li>
+                        <li>お問い合わせへの回答のため</li>
+                        <li>ご協賛者様の掲載および管理のため</li>
+                    </ul>
+
+                    <h3>2. 個人情報の第三者提供</h3>
+                    <p>
+                        当委員会は、法令に基づく場合を除き、お預かりした個人情報を本人の同意なく第三者に提供することはありません。ただし、WRO
+                        Japan決勝大会への選抜に関連して、上位大会の主催者（WRO
+                        Japan本部など）へ必要な範囲で情報を提供・共有する場合があります。
+                    </p>
+
+                    <h3>3. 個人情報の管理</h3>
+                    <p>
+                        当委員会は、個人情報の漏洩、滅失、毀損等を防止するために、適切なセキュリティ対策を講じ、厳重に管理いたします。
+                    </p>
+
+                    <h3>4. クッキー（Cookie）について</h3>
+                    <p>
+                        当サイトでは、アクセス解析やユーザー体験の向上のためにCookieを使用する場合があります。ご使用のブラウザ設定によりCookieを無効にすることも可能ですが、その場合、サイトの一部機能が正常に動作しない可能性があります。
+                    </p>
+
+                    <h3>5. お問い合わせ窓口</h3>
+                    <p>
+                        本ポリシーに関するお問い合わせは、サイト内の「お問い合わせフォーム」よりお願いいたします。
+                    </p>
+                </article>
+            </div>
+
+            <div class="text-center mt-12">
+                <a
+                    href="/"
+                    class="text-slate-500 hover:text-blue-600 transition-colors font-medium"
+                    >&larr; トップへ戻る</a
+                >
+            </div>
+        </main>
+    </div>
+</Layout>

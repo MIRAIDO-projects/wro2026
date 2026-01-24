@@ -3,11 +3,11 @@ import Layout from "../layouts/Layout.astro";
 import { getBlogs, type Blog } from "../lib/microcms";
 import ThreeScene from "../components/ThreeScene";
 import ContactForm from "../components/ContactForm";
-import ArtGallery from "../components/ArtGallery.astro";
 
-const { contents: blogs } = (await getBlogs({
-	fields: ["id", "title", "publishedAt", "eyecatch"],
-})) as { contents: Blog[] };
+// Fetch blogs with filtering for 'wro' target site
+const { contents: blogs } = await getBlogs({
+	filters: "targetSites[contains]wro",
+});
 ---
 
 <Layout>
@@ -28,13 +28,12 @@ const { contents: blogs } = (await getBlogs({
 				<p
 					class="text-lg md:text-2xl text-slate-600 font-normal tracking-wide animate-fade-in-delay opacity-0 max-w-2xl mx-auto"
 				>
-					WRO 2026 Season - Mie Prefecture Qualifier
+					WRO 2026シーズン 三重県予選大会
 					<br />
 					<span
 						class="text-sm md:text-base opacity-80 mt-2 block text-slate-500"
 					>
-						Exploring how robotics can shape, protect, and grow art
-						& culture.
+						ロボット技術がいかにして芸術と文化を形作り、守り、発展させることができるかを探求します。
 					</span>
 				</p>
 			</div>
@@ -68,12 +67,12 @@ const { contents: blogs } = (await getBlogs({
 					<h2
 						class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900"
 					>
-						Latest Stories
+						最新情報
 					</h2>
 					<a
 						href="/news"
 						class="text-blue-600 hover:text-blue-500 transition-colors mt-4 md:mt-0"
-						>View all archives &rarr;</a
+						>記事一覧へ &rarr;</a
 					>
 				</div>
 
@@ -88,17 +87,17 @@ const { contents: blogs } = (await getBlogs({
 									class="group block bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-500 border border-gray-100 hover:border-blue-200 shadow-sm"
 								>
 									<div class="aspect-video w-full bg-gray-100 relative overflow-hidden">
-										{blog.eyecatch ? (
+										{blog.thumbnail ? (
 											<img
-												src={blog.eyecatch.url}
+												src={blog.thumbnail.url}
 												alt={blog.title}
-												width={blog.eyecatch.width}
-												height={blog.eyecatch.height}
+												width={blog.thumbnail.width}
+												height={blog.thumbnail.height}
 												class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
 											/>
 										) : (
 											<div class="w-full h-full flex items-center justify-center text-gray-400">
-												No Image
+												画像なし
 											</div>
 										)}
 									</div>
@@ -115,7 +114,7 @@ const { contents: blogs } = (await getBlogs({
 								</a>
 							))
 						) : (
-							<p class="text-slate-500">No updates yet.</p>
+							<p class="text-slate-500">まだ記事がありません。</p>
 						)
 					}
 				</div>
@@ -126,7 +125,7 @@ const { contents: blogs } = (await getBlogs({
 				<h2
 					class="text-4xl md:text-6xl font-bold tracking-tight mb-16 text-center text-slate-900"
 				>
-					Competitions
+					競技について
 				</h2>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 					<!-- RoboMission Link -->
@@ -148,24 +147,23 @@ const { contents: blogs } = (await getBlogs({
 							>
 						</h3>
 						<p class="text-slate-600 leading-relaxed mb-6">
-							The classic WRO category. Teams design robots to
-							solve specific challenges on the field autonomously.
+							WROの代表的な競技カテゴリです。チームは自律型ロボットを設計・プログラムし、フィールド上の課題を解決します。
 						</p>
 						<ul class="text-sm text-slate-500 space-y-2">
 							<li class="flex items-center">
 								<span
 									class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"
-								></span>Elementary Category
+								></span>小学生部門
 							</li>
 							<li class="flex items-center">
 								<span
 									class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"
-								></span>Junior Category
+								></span>中学生部門
 							</li>
 							<li class="flex items-center">
 								<span
 									class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"
-								></span>Senior Category
+								></span>高校生部門
 							</li>
 						</ul>
 					</a>
@@ -189,19 +187,18 @@ const { contents: blogs } = (await getBlogs({
 							>
 						</h3>
 						<p class="text-slate-600 leading-relaxed mb-6">
-							Dynamic robot sports. Teams compete against each
-							other in exciting matches like Double Tennis.
+							ダイナミックなロボットスポーツ競技です。ダブルステニスのようなエキサイティングな対戦形式で競い合います。
 						</p>
 						<ul class="text-sm text-slate-500 space-y-2">
 							<li class="flex items-center">
 								<span
 									class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"
-								></span>Tennis (Doubles)
+								></span>テニス（ダブルス）
 							</li>
 							<li class="flex items-center">
 								<span
 									class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"
-								></span>Ping Pong
+								></span>卓球
 							</li>
 						</ul>
 					</a>
@@ -219,24 +216,21 @@ const { contents: blogs } = (await getBlogs({
 				<div class="relative z-10 max-w-4xl mx-auto text-center">
 					<span
 						class="text-blue-600 font-semibold tracking-wider text-sm uppercase mb-4 block"
-						>Our Philosophy</span
+						>理念</span
 					>
 					<h2
 						class="text-4xl md:text-5xl font-bold mb-8 tracking-tight text-slate-900"
 					>
-						The "Sponsor 0" Initiative.
+						"Sponsor 0" とは？
 					</h2>
 					<p class="text-xl text-slate-600 leading-relaxed mb-12">
-						We believe in supporting the future of children without
-						commercial strings attached. Our unique "Sponsor 0"
-						program invites partners who value social contribution
-						over advertisement.
+						私たちは、商業的なしがらみなしに子供たちの未来を支援することを信条としています。「スポンサー０（ゼロ）」プログラムは、広告宣伝よりも社会貢献を重視するパートナー様と共に歩む取り組みです。
 					</p>
 					<a
 						href="/about"
 						class="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-slate-900 transition-all duration-200 bg-white border border-gray-200 rounded-full hover:bg-slate-900 hover:text-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900"
 					>
-						Learn about our Mission
+						私たちのミッションについて
 					</a>
 				</div>
 			</section>
@@ -246,10 +240,10 @@ const { contents: blogs } = (await getBlogs({
 				<h2
 					class="text-4xl md:text-6xl font-bold tracking-tight mb-8 text-slate-900"
 				>
-					Get in touch.
+					お問い合わせ
 				</h2>
 				<p class="text-xl text-slate-600 mb-16">
-					Have questions about the competition? We are here to help.
+					大会に関するご質問やご相談がございましたら、お気軽にお問い合わせください。
 				</p>
 
 				<div
@@ -265,7 +259,23 @@ const { contents: blogs } = (await getBlogs({
 			<div
 				class="container mx-auto px-4 text-center text-slate-500 text-sm"
 			>
-				<p>&copy; 2026 WRO Mie. All rights reserved.</p>
+				<div
+					class="flex justify-center gap-6 mb-6 text-xs font-medium tracking-wide"
+				>
+					<a
+						href="/privacy"
+						class="hover:text-slate-900 transition-colors"
+						>プライバシーポリシー</a
+					>
+					<a
+						href="/legal"
+						class="hover:text-slate-900 transition-colors"
+						>特定商取引法に基づく表記</a
+					>
+				</div>
+				<p>
+					【MIRAIDO　PROJECT】&copy; 2026 360inc. All rights reserved.
+				</p>
 			</div>
 		</footer>
 	</div>
@@ -276,8 +286,7 @@ const { contents: blogs } = (await getBlogs({
 	import { ScrollTrigger } from "gsap/ScrollTrigger";
 	gsap.registerPlugin(ScrollTrigger);
 
-	// Text Reveal Logic - Simplified for stability
-	// Animating the whole element to ensure it remains visible
+	// Text Reveal Logic
 	gsap.fromTo(
 		".reveal-text",
 		{
@@ -293,7 +302,7 @@ const { contents: blogs } = (await getBlogs({
 			filter: "blur(0px)",
 			duration: 4.0, // Slow and dramatic
 			ease: "power2.out",
-			delay: 0.5, // Slight delay to ensure load
+			delay: 0.5,
 		},
 	);
 
