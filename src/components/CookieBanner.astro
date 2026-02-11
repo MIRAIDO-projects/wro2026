@@ -1,0 +1,148 @@
+---
+import { type HTMLAttributes } from "astro/types";
+
+interface CookieConsentData {
+    text: string;
+    agreeLabel: string;
+    denyLabel: string;
+}
+
+// Mock Data
+const cookieData: CookieConsentData = {
+    text: "当サイトではUX向上のためにCookieを使用します。同意することで、より良いブラウジング体験を提供できます。",
+    agreeLabel: "同意する",
+    denyLabel: "拒否する",
+};
+
+interface Props extends HTMLAttributes<"div"> {}
+
+const { class: className, ...props } = Astro.props;
+---
+
+<div
+    id="cookie-banner"
+    class:list={[
+        "fixed bottom-0 left-0 z-50 w-full",
+        "bg-white/95 backdrop-blur-sm",
+        "border-t border-gray-200/50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]",
+        "invisible opacity-0 translate-y-full", // Initial state
+        className,
+    ]}
+    {...props}
+>
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div
+            class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        >
+            <div class="flex-1">
+                <p class="text-sm text-gray-600 leading-relaxed max-w-3xl">
+                    {cookieData.text}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3 shrink-0">
+                <button
+                    id="btn-deny"
+                    type="button"
+                    class="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+                >
+                    {cookieData.denyLabel}
+                </button>
+                <button
+                    id="btn-agree"
+                    type="button"
+                    class="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                    {cookieData.agreeLabel}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    import { gsap } from "gsap";
+
+    const STORAGE_KEY = "site_consent_status";
+    const BANNER_ID = "cookie-banner";
+    const BTN_AGREE_ID = "btn-agree";
+    const BTN_DENY_ID = "btn-deny";
+
+    type ConsentStatus = "granted" | "denied";
+
+    // Initialize logic
+    const initCookieBanner = () => {
+        const banner = document.getElementById(BANNER_ID);
+        const btnAgree = document.getElementById(BTN_AGREE_ID);
+        const btnDeny = document.getElementById(BTN_DENY_ID);
+
+        if (!banner || !btnAgree || !btnDeny) return;
+
+        // 1. Check LocalStorage
+        // If consensus already exists, ensure banner is hidden and do nothing
+        if (localStorage.getItem(STORAGE_KEY)) {
+            banner.style.display = "none";
+            return;
+        }
+
+        // Ensure banner is visible in DOM flow (but hidden by opacity/transform) for animation
+        banner.style.display = "block";
+
+        // GTM Logic
+        const updateGtm = (status: ConsentStatus) => {
+            // Check if window.gtag exists
+            if (typeof window.gtag === "function") {
+                window.gtag("consent", "update", {
+                    ad_storage: status,
+                    ad_user_data: status,
+                    ad_personalization: status,
+                    analytics_storage: status,
+                });
+            }
+
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ event: "consent_updated" });
+        };
+
+        const handleConsent = (status: ConsentStatus) => {
+            // Save to LocalStorage
+            localStorage.setItem(STORAGE_KEY, status);
+
+            // Update GTM
+            updateGtm(status);
+
+            // Out-Animation
+            gsap.to(banner, {
+                y: "100%",
+                autoAlpha: 0,
+                duration: 0.5,
+                ease: "power3.in",
+                onComplete: () => {
+                    banner.style.display = "none";
+                },
+            });
+        };
+
+        // Events
+        // Remove previous listeners to avoid duplicates if re-running (though init runs once per page load usually)
+        // Using simple onclick is safer for simple logic if we don't want to track listeners
+        btnAgree.onclick = () => handleConsent("granted");
+        btnDeny.onclick = () => handleConsent("denied");
+
+        // In-Animation (Delay 1.0s)
+        setTimeout(() => {
+            // Check again if consent was made during the delay
+            if (localStorage.getItem(STORAGE_KEY)) return;
+
+            gsap.to(banner, {
+                y: 0,
+                autoAlpha: 1, // visibility: visible, opacity: 1
+                duration: 1.0,
+                ease: "power3.out",
+            });
+        }, 1000);
+    };
+
+    // Run on View Transitions Page Load
+    document.addEventListener("astro:page-load", initCookieBanner);
+</script>
