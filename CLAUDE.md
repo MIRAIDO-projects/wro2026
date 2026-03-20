@@ -1,239 +1,207 @@
-# 360inc.co.jp サイト更新用 エージェント統一ガイド
+# WRO 2026 三重県予選大会ポータルサイト エージェント統一ガイド
 
-**プロジェクト:** 360Inc. 公式Webサイト メンテナンス・機能追加  
-**ホスト:** Cloudflare Pages (https://360inc.pages.dev)  
-**本番:** https://360inc.co.jp  
-**リーダー:** ももたろう（CEO・ソロオペレータ）  
-**最終更新:** 2026-03-20  
-**Version:** 2.0（Opus ブラッシュアップ版）
+**プロジェクト:** WRO 2026 (World Robotics Olympiad) 三重県予選大会ポータル
+**テーマ:** "Robots Meet Culture" -- ロボットx芸術/文化の融合
+**ホスト:** Cloudflare Pages (360inc.pages.dev)
+**リーダー:** ももたろう（CEO・ソロオペレータ）
+**最終更新:** 2026-03-20
+**Version:** 3.0
 
 ---
 
-## 📋 プロジェクト概要
+## プロジェクト概要
 
 ### 技術スタック（package.json 実測値）
 
 | カテゴリ | 技術 | バージョン |
 |---------|------|-----------|
-| フレームワーク | Astro（SSG + React Islands） | 5.17.1 |
-| UIライブラリ | React + ReactDOM | 18.3.1 |
-| スタイリング | Tailwind CSS + Vite プラグイン | 4.1.12 |
+| フレームワーク | Astro (SSG + React Islands) | 5.16.11 |
+| UI | React + ReactDOM | 19.2.3 |
+| スタイリング | Tailwind CSS + Vite plugin | 4.1.18 |
 | CMS | microCMS JS SDK | 3.2.0 |
-| 3D/WebGL | Three.js + React Three Fiber + drei | 0.182.0 / 8.18.0 / 9.122.0 |
-| UIコンポーネント | Radix UI (26種) + shadcn/ui パターン | 各種 |
-| MUI | MUI Material + MUI Icons | 7.3.5 |
-| アニメーション | GSAP + Motion + Lenis | 3.14.2 / 12.23.24 / 1.3.17 |
-| チャート | Recharts | 2.15.2 |
-| フォーム | React Hook Form | 7.55.0 |
-| D&D | React DnD + HTML5 Backend | 16.0.1 |
-| RSS | rss-parser | 3.13.0 |
-| トースト | Sonner | 2.0.3 |
-| ホスティング | Cloudflare Pages | - |
+| 3D/WebGL | Three.js + React Three Fiber + drei | 0.182.0 / 9.5.0 / 10.7.7 |
+| アニメーション | GSAP + Lenis | 3.14.2 / 1.3.17 |
+| SEO | astro-seo | 1.1.0 |
+| フォント | @fontsource/inter | 5.2.8 |
+| タイポグラフィ | @tailwindcss/typography (dev) | 0.5.19 |
 
-### アーキテクチャの実態
+**存在しないもの:** shadcn/ui, Radix UI, MUI, Recharts, React Hook Form, React DnD, rss-parser, Sonner, Motion。これらを追加しないこと。
 
-このプロジェクトは **Astro を薄いルーティング層として使い、実質的なUI・ロジックは全て React で実装** されている。
+### アーキテクチャ
+
+Astro がルーティング・レイアウト・SEO・コンテンツを担当し、React は 3D シーンとフォームにのみ使用する軽量な Islands 構成。
 
 ```
-src/pages/*.astro          → ルーティング + SEO メタ（薄いラッパー）
-  ↓ client:load
-src/app/pages/*Content.tsx → ページ本体（React）
-  ↓ import
-src/app/components/*.tsx   → 共通コンポーネント（React）
-src/app/components/ui/*.tsx → shadcn/ui ベースUI（React）
+src/pages/*.astro              -> ルーティング + ページ本体（Astro）
+src/layouts/Layout.astro       -> 共通レイアウト（SEO, Cookie, Lenis）
+src/components/*.astro         -> Astro コンポーネント（5ファイル）
+src/components/*.tsx           -> React Islands（2ファイル: ThreeScene, ContactForm）
+src/lib/microcms.ts            -> CMS クライアント（型 + API + MOCK）
 ```
 
-**重要:** `src/components/` にはAstroコンポーネントが3つだけ（BaseHead, CookieBanner, SeoLayer）。残りのUI実装は全て `src/app/` 配下のReact。
+**重要:** `src/app/` ディレクトリは存在しない。ページ本体は Astro ファイル内に直接記述されている。React は `client:load` / `client:only` で島として埋め込まれる。
 
-### ビジネス背景
+### サイト内容
 
-360Inc. は以下の6つのソリューション領域を展開：
-1. **AI Integration Service** — AIビジネス化支援
-2. **XR Development** — VR/AR体験開発
-3. **Application Development** — モバイル・ブラウザアプリ
-4. **Website Production** — Webサイト構築
-5. **Content Marketing** — コンテンツ戦略
-6. **Digital Education** — プログラミング教育
+WRO 2026 三重県予選大会のポータルサイト。以下のコンテンツで構成される：
 
-サイトのコンテンツ構成：
-- トップページ + 各ソリューション紹介
-- ブログ（microCMS 連携）
-- プロジェクト/ケーススタディ（microCMS 連携）
-- 製品紹介（RAG Service、L-Message、プロンプト道場 等）
-- 補助金情報 LP 4ページ（IT導入、省力化、ものづくり、小規模事業者）
-- ホスピタリティ支援（古民家・宿泊業向け）
+- **Hero:** "Robots Meet Culture" 3D 音符背景 + キャッチコピー
+- **競技紹介:** RoboMission (Elementary/Junior/Senior), RoboSports (Double Tennis)
+- **会場:** 熊野古道センター（尾鷲市）+ Google Maps 埋め込み
+- **Sponsor 0:** 商業主義ゼロの支援哲学 + 協賛ティア（Platinum/Gold/Silver/Bronze/Supporter）
+- **ニュース/ブログ:** microCMS 連携
+- **お問い合わせ:** React フォーム -> Hyperform バックエンド
 
 ---
 
-## 🎯 エージェント4人体制
+## エージェント体制
 
-> **Haiku版の5人から4人に変更。** WebGL/3D Agent は廃止 — 3D実装は `ThreeBackground.tsx` の1ファイルのみであり、独立エージェントは過剰。Frontend Agent が Three.js 関連も担当する。
+小規模プロジェクト（7コンポーネント, 10ページ）のため、2ロール体制で運用する。
 
-### **1️⃣ Architect（アーキテクト）**
+### 1. implementer（実装）
 
-**役割:** プロジェクト全体の設計・構成判断・タスク分解
+**役割:** コード変更の全般を担当する。
 
 **責務:**
-- Astro + React + microCMS + Three.js の統合設計
-- 修正リクエストの分解・優先度付け・エージェントへの振り分け
-- パフォーマンス戦略（LCP, CLS, INP）
-- SEO・AIO 対策（sitemap, structured data, JSON-LD）
-- ビルド・デプロイメント戦略
-- 大規模リファクタリングの判断
+- Astro ページ・コンポーネントの作成/編集
+- React Islands（ThreeScene, ContactForm）の変更
+- microCMS クライアント・データフェッチの変更
+- Tailwind CSS スタイリング
+- GSAP / Lenis アニメーション調整
+- SEO メタ・JSON-LD 構造化データ
 
-**編集可能:** `CLAUDE.md`, `astro.config.mjs`, `tsconfig.json`, `package.json`, `src/pages/*.astro`（ルーティング層）, `docs/**`
+**編集可能:** 全ファイル
 
-**禁止:** `src/app/**` への直接実装
+**守ること:**
+- 実装前後に必ず Git コミット
+- .env をコミットしない
+- React の使用は Islands パターンのみ（ページ全体を React にしない）
+- 存在しないライブラリ（shadcn/ui, MUI 等）をインポートしない
 
-**出力形式:**
-```json
-{
-  "task_id": "TASK-001",
-  "title": "タスク名",
-  "diagnosis": "現状分析",
-  "implementation_plan": [
-    { "agent": "Frontend", "priority": "HIGH", "task": "具体的な実装内容" }
-  ],
-  "risks": ["リスク項目"],
-  "success_metrics": ["成功指標"]
-}
-```
+### 2. reviewer（レビュー）
 
----
-
-### **2️⃣ Backend Agent（バックエンド）**
-
-**役割:** microCMS・データフェッチ・API・キャッシュ
-
-**責務:**
-- microCMS クライアント管理（`src/lib/microcms.ts`）
-- Astro データフェッチング（`getStaticPaths()` 等）
-- キャッシュ戦略（microCMS + Cloudflare）
-- RSS フィード生成
-- 画像最適化・CDN配信
-- 環境変数・シークレット管理
-
-**編集可能:** `src/lib/**`, `src/pages/blog/`, `src/pages/projects/`, `src/pages/products/`（データフェッチ部分）, `.env`
-
-**禁止:** `src/app/**`（UI実装）, `src/components/*.astro`
-
----
-
-### **3️⃣ Frontend Agent（フロントエンド + 3D）**
-
-**役割:** React UI・コンポーネント・インタラクション・Three.js
-
-**責務:**
-- React ページコンテンツ（`src/app/pages/*Content.tsx` — 21ファイル）
-- 共通コンポーネント（`src/app/components/*.tsx` — 21ファイル）
-- shadcn/ui（`src/app/components/ui/` — 48ファイル）
-- RAG専用コンポーネント（ComparisonTable, ROICalculator）
-- Three.js 背景（`ThreeBackground.tsx`）
-- Tailwind CSS デザイン + レスポンシブ
-- GSAP / Motion / Lenis アニメーション
-- React Hook Form フォーム
-- アクセシビリティ（WCAG AA）
-
-**編集可能:** `src/app/**`, `src/components/*.astro`, `src/styles/**`, `public/**`
-
-**禁止:** `src/lib/**`, `astro.config.mjs`, `package.json`
-
----
-
-### **4️⃣ Reviewer（QA・統合テスト）**
-
-**役割:** 品質保証・統合テスト・デプロイ検証
+**役割:** 品質保証・統合チェック
 
 **チェックリスト:**
 ```
-✅ npm run build 成功（エラー・警告なし）
-✅ npm run preview で全ページ表示確認
-✅ Lighthouse 90+（Performance, SEO, Accessibility, Best Practices）
-✅ LCP < 2.5s, CLS < 0.1, INP < 200ms
-✅ microCMS API 応答確認（MOCK フォールバック動作も）
-✅ ThreeBackground: デスクトップ + モバイル Safari
-✅ メタタグ: og:title, og:description, og:image 全ページ
-✅ JSON-LD 構文チェック
-✅ sitemap.xml: /thanks 除外、LP priority 0.9
-✅ robots.txt, 404, Cookie バナー, フォーム → /thanks 遷移
-✅ Git コミット整合性
+- npm run build 成功（エラー・警告なし）
+- npm run preview で全ページ表示確認
+- Lighthouse 90+（Performance, SEO, Accessibility, Best Practices）
+- LCP < 2.5s, CLS < 0.1, INP < 200ms
+- microCMS API 応答 + MOCK フォールバック動作
+- ThreeScene: デスクトップ + モバイル Safari 動作
+- メタタグ: title, description, og:image 全ページ
+- Cookie バナー + GTM 連携
+- ContactForm -> /thanks 遷移
+- Git コミット整合性
 ```
 
 ---
 
-## 🔄 ワークフロー
+## ワークフロー
 
 ```
-ももたろう → Architect（診断・分解）→ Backend + Frontend（並列）→ Reviewer → デプロイ
+ももたろう -> implementer（実装）-> reviewer（レビュー）-> デプロイ
 ```
 
-軽微な修正は Architect を経由せず Frontend/Backend → Reviewer で完結可。
+reviewer で重大な指摘があれば implementer に差し戻す。軽微・提案のみなら完了。
 
 ---
 
-## 💾 ファイル構成（実測）
+## ファイル構成（実測）
 
 ```
-Corporate Website Design/
-├── astro.config.mjs           ← sitemap 設定含む
+wro2026/
+├── astro.config.mjs           <- Tailwind + React integration
 ├── package.json
 ├── tsconfig.json
-├── postcss.config.mjs
-├── guidelines/Guidelines.md
+├── .env                       <- MICROCMS_SERVICE_DOMAIN, MICROCMS_API_KEY
+├── CLAUDE.md
 ├── public/
-│   ├── images/ (12), backgrounds/ (6), videos/ (1)
-│   ├── partnership_badge_bg.png
-│   └── robots.txt
+│   ├── favicon.svg
+│   ├── note.svg
+│   └── images/
+│       └── bg001-bg009.jpg    <- 背景アート画像（9枚）
 └── src/
-    ├── env.d.ts
-    ├── lib/microcms.ts        ← CMS クライアント（型+API+MOCK）
-    ├── layouts/Layout.astro   ← 唯一のレイアウト
-    ├── components/            ← Astro (3ファイルのみ)
-    │   ├── BaseHead.astro, CookieBanner.astro, SeoLayer.astro
-    ├── pages/                 ← Astro ルーティング (17静的 + 3動的)
-    │   ├── index, about, contact, thanks, 404, legal...
-    │   ├── ax-transformation, rag-service, l-message, prompt-dojo
-    │   ├── hospitality-support
-    │   ├── it-subsidy, labor-saving-subsidy, manufacturing-subsidy, small-business-subsidy
-    │   ├── privacy-policy, security-policy
-    │   └── blog/, projects/, products/  ← microCMS 動的
-    ├── app/                   ← React アプリ層
-    │   ├── App.tsx
-    │   ├── pages/ (21)        ← *PageContent.tsx
-    │   └── components/        ← React UI
-    │       ├── 21 共通コンポーネント
-    │       ├── figma/ImageWithFallback.tsx
-    │       ├── rag/ComparisonTable.tsx, ROICalculator.tsx
-    │       └── ui/ (48 shadcn/ui)
-    └── styles/ (4)
-        ├── index.css, tailwind.css, theme.css, fonts.css
+    ├── env.d.ts               <- GTM/dataLayer 型定義
+    ├── assets/
+    │   ├── astro.svg
+    │   └── background.svg
+    ├── styles/
+    │   └── global.css         <- @import tailwindcss + typography plugin
+    ├── layouts/
+    │   └── Layout.astro       <- 唯一のレイアウト（astro-seo, Cookie, Lenis）
+    ├── lib/
+    │   └── microcms.ts        <- CMS クライアント（Blog, News 型 + MOCK）
+    ├── components/            <- 全7ファイル（Astro 5 + React 2）
+    │   ├── ArtGallery.astro   <- アートギャラリー（Intersection Observer）
+    │   ├── ContactForm.tsx    <- React お問合せフォーム（Hyperform 送信）
+    │   ├── CookieBanner.astro <- Cookie 同意バナー（GSAP アニメーション）
+    │   ├── CustomCursor.astro <- カスタムカーソル（GSAP QuickTo）
+    │   ├── FloatingArt.astro  <- スクロール連動背景画像（GSAP ScrollTrigger）
+    │   ├── ThreeScene.tsx     <- 3D 音符シーン（R3F, 1000行超）
+    │   └── Welcome.astro      <- デフォルトテンプレ（未使用）
+    └── pages/                 <- 全10ページ（静的9 + 動的1）
+        ├── index.astro        <- トップ（Hero, News, 競技紹介, 会場, 問合せ）
+        ├── about.astro        <- Sponsor 0 / 協賛情報
+        ├── mission.astro      <- RoboMission 競技詳細
+        ├── sports.astro       <- RoboSports (Double Tennis) 詳細
+        ├── news/
+        │   └── index.astro    <- ニュース一覧
+        ├── blog/
+        │   └── [...slug].astro <- ブログ詳細（microCMS 動的ルート）
+        ├── 404.astro
+        ├── privacy.astro
+        ├── legal.astro
+        └── thanks.astro
 ```
 
 ---
 
-## 📌 重要ポイント
+## 重要ポイント
 
-### Astro ↔ React の責務分離
-- Astro: ルーティング、`<head>`、SEO、Cookie、Layout のみ
-- React: ページ本体の全UI、インタラクション、3D、フォーム、アニメーション
+### Astro 主体の構成
+- Astro がページ本体・レイアウト・コンテンツを全て担当する
+- React は ThreeScene（3D 背景）と ContactForm（フォーム）の 2 箇所のみ
+- `src/app/` ディレクトリは存在しない。作成しないこと
 
 ### microCMS 連携
-- クライアント一元管理: `src/lib/microcms.ts`
-- 3エンドポイント: `blogs`, `projects`/`project`（自動リトライ）, `products`
+- クライアント: `src/lib/microcms.ts`
+- エンドポイント: `blogs`（targetSites フィルタで "wro" 絞り込み）, `news`
+- 関数: `getBlogs()`, `getBlogDetail()`, `getNews()`, `getNewsDetail()`
 - API キー無効時の MOCK フォールバック内蔵
+- `projects`, `products` エンドポイントは存在しない
 
-### SEO（astro.config.mjs 実装済み）
-- ホーム: priority 1.0 / daily
-- LP: priority 0.9 / daily
-- projects: 0.8 / weekly, blog: 0.6 / monthly
-- /thanks, /api/ 除外, i18n: ja-JP
+### 3D シーン (ThreeScene.tsx)
+- React Three Fiber + drei で音符が浮遊するシーン
+- Google カラーパレット使用
+- `client:only="react"` で SSR スキップ
+- モバイル Safari 対応が必要
 
-### パフォーマンス目標
-LCP < 2.5s, CLS < 0.1, INP < 200ms, Lighthouse 90+
+### アニメーション
+- GSAP ScrollTrigger: FloatingArt の背景パララックス
+- GSAP QuickTo: CustomCursor のカーソル追従
+- GSAP: CookieBanner のスライドイン
+- Lenis: Layout.astro でスムーズスクロール
+
+### SEO / GEO
+- astro-seo による title, description, OGP 設定（Layout.astro から各ページで上書き）
+- JSON-LD 構造化データ（Organization + Article）
+- sitemap 設定は astro.config.mjs に未実装（必要に応じて追加）
+
+### Cookie / GTM
+- CookieBanner.astro で同意管理
+- 同意後に GTM スクリプトを動的挿入
+- dataLayer 型定義は src/env.d.ts
+
+### 協賛 (Sponsor)
+- Platinum / Gold / Silver / Bronze / Supporter の 5 ティア
+- Square 決済リンクによるオンライン支援
+- about.astro に実装
 
 ---
 
-## 🚀 デプロイメント
+## デプロイメント
 
 ```bash
 npm run dev       # localhost:4321
@@ -241,4 +209,16 @@ npm run build     # dist/ 出力
 npm run preview   # ビルド結果確認
 ```
 
-Cloudflare Pages: GitHub main ブランチ push → 自動デプロイ
+Cloudflare Pages: GitHub main ブランチ push で自動デプロイ。
+
+---
+
+## コーディング規約
+
+- 作業前後は必ず Git コミット（コミットなしの大規模変更は禁止）
+- .env・シークレットは絶対にコミットしない
+- 入力値のバリデーション・サニタイズを徹底する
+- セマンティック HTML を使用する（div の乱用禁止）
+- モバイルファーストで実装する
+- 画像には必ず alt 属性を付ける
+- エラー・ローディング・空状態の 3 状態を実装する
