@@ -1,8 +1,4 @@
 import sharp from "sharp";
-import { writeFileSync } from "node:fs";
-
-const W = 1200;
-const H = 630;
 
 // 8分音符をベクターで描く（フォント非依存）。x,y=符頭中心, color, scale
 function note(x, y, color, scale = 1, rot = 0, flag = true) {
@@ -15,7 +11,36 @@ function note(x, y, color, scale = 1, rot = 0, flag = true) {
   return `<g transform="translate(${x},${y}) rotate(${rot})">${head}${stem}${flagPath}</g>`;
 }
 
-const svg = `<?xml version="1.0" encoding="UTF-8"?>
+// 任意の寸法で OG 画像 SVG を生成する。
+// 基準は 1200x630。フォント/位置は W,H から比例算出するため、
+// 1200x630 では従来とピクセル単位で同一、他比率でも崩れず再配置される。
+function buildSvg(W, H) {
+  const cx = W / 2;
+  const fx = W / 1200; // 横方向スケール
+  const fy = H / 630; // 縦方向スケール
+  const f = Math.min(fx, fy); // フォント/音符の等方スケール（潰れ防止）
+
+  // 縦アンカー（630基準の比率）
+  const yLabel = H * (150 / 630);
+  const yTitle = H * (312 / 630);
+  const ySub = H * (392 / 630);
+  const yDiv = H * (430 / 630);
+  const yVenue = H * (486 / 630);
+  const barH = Math.round(H * (64 / 630));
+
+  // フォントサイズ（1200基準 × 等方スケール）
+  const sLabel = 26 * f;
+  const sTitle = 104 * f;
+  const sSub = 40 * f;
+  const sVenue = 27 * f;
+  const sBar = 22 * f;
+  const divW = 180 * fx;
+
+  // 音符（位置は fx/fy、サイズは f でスケール）
+  const N = (x, y, c, sc, rot) =>
+    note(x * fx, y * fy, c, sc * f, rot);
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
@@ -36,49 +61,46 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
     </style>
   </defs>
 
-  <!-- 背景 -->
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
   <rect width="${W}" height="${H}" fill="url(#glow)"/>
 
-  <!-- 浮遊する音符（Googleカラー・低不透明度） -->
   <g opacity="0.16">
-    ${note(150, 150, "#4285F4", 1.5, -8)}
-    ${note(1040, 120, "#EA4335", 1.2, 10)}
-    ${note(1090, 470, "#34A853", 1.6, -6)}
-    ${note(110, 500, "#FBBC05", 1.3, 12)}
-    ${note(960, 300, "#4285F4", 0.9, 4)}
-    ${note(250, 380, "#EA4335", 0.8, -10)}
+    ${N(150, 150, "#4285F4", 1.5, -8)}
+    ${N(1040, 120, "#EA4335", 1.2, 10)}
+    ${N(1090, 470, "#34A853", 1.6, -6)}
+    ${N(110, 500, "#FBBC05", 1.3, 12)}
+    ${N(960, 300, "#4285F4", 0.9, 4)}
+    ${N(250, 380, "#EA4335", 0.8, -10)}
   </g>
 
-  <!-- 上部ラベル -->
-  <text x="${W / 2}" y="150" text-anchor="middle" class="en"
-    font-size="26" letter-spacing="10" font-weight="600" fill="#64748b">WORLD ROBOT OLYMPIAD</text>
+  <text x="${cx}" y="${yLabel}" text-anchor="middle" class="en"
+    font-size="${sLabel}" letter-spacing="${10 * f}" font-weight="600" fill="#64748b">WORLD ROBOT OLYMPIAD</text>
 
-  <!-- メインタイトル -->
-  <text x="${W / 2}" y="312" text-anchor="middle" class="en"
-    font-size="104" font-weight="800" letter-spacing="-2" fill="url(#title)">Robots Meet Culture</text>
+  <text x="${cx}" y="${yTitle}" text-anchor="middle" class="en"
+    font-size="${sTitle}" font-weight="800" letter-spacing="${-2 * f}" fill="url(#title)">Robots Meet Culture</text>
 
-  <!-- サブ（日本語） -->
-  <text x="${W / 2}" y="392" text-anchor="middle" class="jp"
-    font-size="40" font-weight="700" fill="#1e293b">WRO Japan 2026 公認 ・ 三重予選会</text>
+  <text x="${cx}" y="${ySub}" text-anchor="middle" class="jp"
+    font-size="${sSub}" font-weight="700" fill="#1e293b">WRO Japan 2026 公認 ・ 三重予選会</text>
 
-  <!-- 区切り線 -->
-  <rect x="${W / 2 - 90}" y="430" width="180" height="3" rx="1.5" fill="#cbd5e1"/>
+  <rect x="${cx - divW / 2}" y="${yDiv}" width="${divW}" height="${3 * f}" rx="${1.5 * f}" fill="#cbd5e1"/>
 
-  <!-- 会場 -->
-  <text x="${W / 2}" y="486" text-anchor="middle" class="jp"
-    font-size="27" font-weight="500" fill="#475569">会場：三重県立熊野古道センター（三重県尾鷲市）</text>
+  <text x="${cx}" y="${yVenue}" text-anchor="middle" class="jp"
+    font-size="${sVenue}" font-weight="500" fill="#475569">会場：三重県立熊野古道センター（三重県尾鷲市）</text>
 
-  <!-- 下部バー -->
-  <rect x="0" y="${H - 64}" width="${W}" height="64" fill="#0f172a"/>
-  <text x="60" y="${H - 24}" class="jp" font-size="22" font-weight="600" fill="#ffffff">ロボット × 芸術・文化の融合</text>
-  <text x="${W - 60}" y="${H - 24}" text-anchor="end" class="en" font-size="22" font-weight="700" letter-spacing="2" fill="#ffffff">MIRAIDO PROJECT</text>
+  <rect x="0" y="${H - barH}" width="${W}" height="${barH}" fill="#0f172a"/>
+  <text x="${60 * fx}" y="${H - barH * 0.375}" class="jp" font-size="${sBar}" font-weight="600" fill="#ffffff">ロボット × 芸術・文化の融合</text>
+  <text x="${W - 60 * fx}" y="${H - barH * 0.375}" text-anchor="end" class="en" font-size="${sBar}" font-weight="700" letter-spacing="${2 * f}" fill="#ffffff">MIRAIDO PROJECT</text>
 </svg>`;
+}
 
-writeFileSync(new URL("./og-debug.svg", import.meta.url), svg);
+async function generate(W, H, outFile, quality) {
+  const svg = buildSvg(W, H);
+  const out = new URL(`../public/${outFile}`, import.meta.url).pathname;
+  await sharp(Buffer.from(svg)).jpeg({ quality }).toFile(out);
+  console.log(`done: public/${outFile} (${W}x${H})`);
+}
 
-await sharp(Buffer.from(svg))
-  .jpeg({ quality: 90 })
-  .toFile(new URL("../public/og-image.jpg", import.meta.url).pathname);
-
-console.log("done: public/og-image.jpg");
+// OGP標準（変更しない既存ファイル）
+await generate(1200, 630, "og-image.jpg", 90);
+// 16:9 ダウンロード用
+await generate(1280, 720, "og-image-1280x720.jpg", 92);
