@@ -76,6 +76,35 @@ import Footer from "../components/Footer.astro";
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
+
+		<!-- Google Analytics 4 (Consent Mode v2) -->
+		<script is:inline>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){ dataLayer.push(arguments); }
+			gtag('consent', 'default', {
+				ad_storage: 'denied',
+				ad_user_data: 'denied',
+				ad_personalization: 'denied',
+				analytics_storage: 'denied',
+				wait_for_update: 500
+			});
+			try {
+				if (localStorage.getItem('site_consent_status') === 'granted') {
+					gtag('consent', 'update', {
+						ad_storage: 'granted',
+						ad_user_data: 'granted',
+						ad_personalization: 'granted',
+						analytics_storage: 'granted'
+					});
+				}
+			} catch (e) {}
+		</script>
+		<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-FPEE1YW6VS"></script>
+		<script is:inline>
+			gtag('js', new Date());
+			gtag('config', 'G-FPEE1YW6VS');
+		</script>
+
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
