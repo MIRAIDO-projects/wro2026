@@ -20,15 +20,30 @@ const blog = await getBlogDetail(slug as string);
 if (!blog) {
     return Astro.redirect("/404");
 }
+
+// Build a plain-text excerpt from the HTML body for the meta description.
+const excerpt =
+    blog.content
+        .replace(/<[^>]*>/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 120) || blog.title;
 ---
 
-<Layout title={blog.title}>
+<Layout
+    title={`${blog.title} | WRO 2026 三重県予選大会`}
+    description={excerpt}
+    image={blog.thumbnail?.url ?? "/og-image.jpg"}
+    article={true}
+    publishedTime={blog.publishedAt}
+    modifiedTime={blog.updatedAt}
+>
     <div class="bg-slate-50 min-h-screen">
         <main class="container mx-auto px-4 py-24 max-w-4xl">
             <a
-                href="/"
+                href="/news"
                 class="text-slate-500 hover:text-blue-600 transition-colors mb-8 inline-block font-medium"
-                >&larr; トップへ戻る</a
+                >&larr; 記事一覧へ戻る</a
             >
 
             <h1

@@ -7,7 +7,10 @@ const { contents: blogs } = await getBlogs({
 });
 ---
 
-<Layout title="News & Updates - WRO 2026 Mie">
+<Layout
+    title="最新ニュース・お知らせ | WRO 2026 三重県予選大会"
+    description="WRO Japan 2026 三重県予選大会に関する最新のお知らせや活動報告の一覧です。大会日程、エントリー情報、当日の運営に関する更新をこちらで随時お届けします。"
+>
     <div class="relative w-full overflow-x-hidden min-h-screen bg-slate-50">
         <!-- Hero -->
         <section class="relative pt-32 pb-20 px-4">
@@ -90,43 +93,5 @@ const { contents: blogs } = await getBlogs({
                 }
             </div>
         </main>
-
-        <!-- Footer -->
-        <footer class="border-t border-gray-200 py-12 bg-white">
-            <div
-                class="container mx-auto px-4 text-center text-slate-500 text-sm"
-            >
-                <div
-                    class="flex justify-center gap-6 mb-6 text-xs font-medium tracking-wide"
-                >
-                    <a
-                        href="/privacy"
-                        class="hover:text-blue-700 transition-colors"
-                        >プライバシーポリシー</a
-                    >
-                    <a
-                        href="/legal"
-                        class="hover:text-blue-700 transition-colors"
-                        >特定商取引法に基づく表記</a
-                    >
-                </div>
-                <p>
-                    <a
-                        href="https://miraido.net/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="hover:text-blue-600 transition-colors"
-                    >
-                        【MIRAIDO　PROJECT】&copy; 2026 360inc. All rights
-                        reserved.
-                    </a>
-                </p>
-                <a
-                    href="/"
-                    class="inline-block mt-4 text-blue-500 hover:text-blue-700 font-medium"
-                    >トップへ戻る</a
-                >
-            </div>
-        </footer>
     </div>
 </Layout>

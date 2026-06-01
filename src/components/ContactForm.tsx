@@ -8,6 +8,7 @@ export default function ContactForm() {
         message: ''
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const validate = (name: string, value: string) => {
         let error = '';
@@ -42,11 +43,21 @@ export default function ContactForm() {
             return;
         }
 
-        // If no errors, let the browser handle the POST submission naturally to the action URL.
+        // Validation passed: disable the button to prevent double submission,
+        // then let the browser continue the native POST to the action URL.
+        // (We do NOT preventDefault here — native form submission is preserved
+        // to avoid CORS issues with the Hyperform endpoint.)
+        setIsSubmitting(true);
     };
 
     return (
         <div className="w-full text-left">
+            {/*
+              Static form submits directly to Hyperform (no fetch, native POST to avoid CORS).
+              The endpoint URL is intentionally hardcoded due to the static-form constraint.
+              NOTE: Configure rate limiting / allowed-domain restrictions in the Hyperform
+              admin console to mitigate spam and abuse.
+            */}
             <form
                 action="https://hyperform.jp/api/t1ePaX2M"
                 method="POST"
@@ -108,8 +119,9 @@ export default function ContactForm() {
                         className={`w-full px-4 py-3 bg-white border rounded-xl focus:ring-2 focus:outline-none transition-colors text-slate-900 ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500'}`}
                         required
                         aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? "email-error" : undefined}
                     />
-                    {errors.email && <p className="mt-2 text-sm text-red-500">{errors.email}</p>}
+                    {errors.email && <p id="email-error" className="mt-2 text-sm text-red-500">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -123,15 +135,18 @@ export default function ContactForm() {
                         className={`w-full px-4 py-3 bg-white border rounded-xl focus:ring-2 focus:outline-none transition-colors text-slate-900 ${errors.message ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500'}`}
                         required
                         aria-invalid={!!errors.message}
+                        aria-describedby={errors.message ? "message-error" : undefined}
                     />
-                    {errors.message && <p className="mt-2 text-sm text-red-500">{errors.message}</p>}
+                    {errors.message && <p id="message-error" className="mt-2 text-sm text-red-500">{errors.message}</p>}
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-full hover:bg-slate-700 transition-colors flex justify-center items-center text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                    disabled={isSubmitting}
+                    aria-busy={isSubmitting}
+                    className="w-full bg-slate-900 text-white font-bold py-4 px-6 rounded-full hover:bg-slate-700 transition-colors flex justify-center items-center text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-slate-900 disabled:hover:translate-y-0 disabled:hover:shadow-lg"
                 >
-                    送信する
+                    {isSubmitting ? '送信中…' : '送信する'}
                 </button>
             </form>
         </div>

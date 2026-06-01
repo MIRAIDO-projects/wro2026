@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Text } from '@react-three/drei'
 import * as THREE from 'three'
@@ -22,6 +22,15 @@ function CurvedExtendingLine({ startX, startY, phaseOffset }: any) {
         geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         return geo;
     }, []);
+
+    // This BufferGeometry is created imperatively and passed via the `geometry` prop,
+    // so R3F does NOT auto-dispose it. Dispose on unmount to prevent a GPU memory leak.
+    // (Visual output is unaffected — this only runs when the component is removed.)
+    useEffect(() => {
+        return () => {
+            geometry.dispose();
+        };
+    }, [geometry]);
 
     useFrame((state) => {
         const t = state.clock.getElapsedTime();
@@ -98,6 +107,21 @@ function MorphingNote({ startX, startY, scale, speed, phaseOffset }: any) {
 
     // Previous targets for detecting changes
     const prevType = useRef(0);
+
+    // Dispose geometries/materials on unmount as a defensive cleanup (idempotent in Three.js).
+    // Runs only when this note is removed, so it never affects the live visuals.
+    useEffect(() => {
+        const grp = groupRef.current;
+        return () => {
+            grp?.traverse((obj) => {
+                const mesh = obj as THREE.Mesh;
+                mesh.geometry?.dispose?.();
+                const mat = mesh.material as THREE.Material | THREE.Material[] | undefined;
+                if (Array.isArray(mat)) mat.forEach((m) => m.dispose?.());
+                else mat?.dispose?.();
+            });
+        };
+    }, []);
 
     useFrame((state) => {
         const t = state.clock.getElapsedTime();
@@ -447,6 +471,20 @@ function MorphingSymbol({ baseX, baseY, scale, speed, phaseOffset }: any) {
         accentScale: 0,
     });
 
+    // Dispose geometries/materials on unmount (idempotent; runs only on removal).
+    useEffect(() => {
+        const grp = groupRef.current;
+        return () => {
+            grp?.traverse((obj) => {
+                const mesh = obj as THREE.Mesh;
+                mesh.geometry?.dispose?.();
+                const mat = mesh.material as THREE.Material | THREE.Material[] | undefined;
+                if (Array.isArray(mat)) mat.forEach((m) => m.dispose?.());
+                else mat?.dispose?.();
+            });
+        };
+    }, []);
+
     useFrame((state) => {
         const t = state.clock.getElapsedTime();
 
@@ -599,6 +637,20 @@ function MelodyNote({ baseX, baseY, scale, speed, phaseOffset, melody }: any) {
     // Melody position tracking
     const currentMelodyY = useRef(0);
     const targetMelodyY = useRef(0);
+
+    // Dispose geometries/materials on unmount (idempotent; runs only on removal).
+    useEffect(() => {
+        const grp = groupRef.current;
+        return () => {
+            grp?.traverse((obj) => {
+                const mesh = obj as THREE.Mesh;
+                mesh.geometry?.dispose?.();
+                const mat = mesh.material as THREE.Material | THREE.Material[] | undefined;
+                if (Array.isArray(mat)) mat.forEach((m) => m.dispose?.());
+                else mat?.dispose?.();
+            });
+        };
+    }, []);
 
     useFrame((state) => {
         const t = state.clock.getElapsedTime();

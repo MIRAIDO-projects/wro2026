@@ -22,7 +22,7 @@
                     class="art-frame relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-700 hover:scale-105 hover:rotate-1"
                 >
                     <img
-                        src="/images/picasso_robot.png"
+                        src="/images/bg003.jpg"
                         alt="Cubist Robot - Picasso Style"
                         class="w-full h-auto"
                         loading="lazy"
@@ -48,7 +48,7 @@
                     class="art-frame relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-700 hover:scale-105 hover:-rotate-1"
                 >
                     <img
-                        src="/images/warhol_robot.png"
+                        src="/images/bg006.jpg"
                         alt="Pop Art Robot - Warhol Style"
                         class="w-full h-auto"
                         loading="lazy"
@@ -74,7 +74,7 @@
                     class="art-frame relative overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-700 hover:scale-105 hover:rotate-1"
                 >
                     <img
-                        src="/images/abstract_music_robot.png"
+                        src="/images/bg009.jpg"
                         alt="Abstract Music Robot"
                         class="w-full h-auto"
                         loading="lazy"
@@ -150,6 +150,22 @@
     .art-card:nth-child(3) .art-frame {
         border-color: #34a853;
     }
+
+    /* Respect reduced-motion: show content immediately without transitions. */
+    @media (prefers-reduced-motion: reduce) {
+        .art-card {
+            opacity: 1;
+            transform: none;
+            transition: none;
+            transition-delay: 0s;
+        }
+
+        .art-frame,
+        .art-frame img,
+        .art-overlay {
+            transition: none;
+        }
+    }
 </style>
 
 <script>
@@ -160,15 +176,24 @@
         threshold: 0.2,
     };
 
+    const targets = document.querySelectorAll("[data-scroll-reveal]");
+    let revealedCount = 0;
+    const totalCount = targets.length;
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 entry.target.classList.add("revealed");
+                // Stop watching this element once revealed.
+                observer.unobserve(entry.target);
+                revealedCount += 1;
+                // All elements revealed: tear down the observer entirely.
+                if (revealedCount >= totalCount) {
+                    observer.disconnect();
+                }
             }
         });
     }, observerOptions);
 
-    document.querySelectorAll("[data-scroll-reveal]").forEach((el) => {
-        observer.observe(el);
-    });
+    targets.forEach((el) => observer.observe(el));
 </script>

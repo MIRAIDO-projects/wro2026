@@ -11,7 +11,7 @@
 >
     {/* Statically output potential images. Browser handles loading/error. */}
     {
-        Array.from({ length: 12 }).map((_, i) => {
+        Array.from({ length: 9 }).map((_, i) => {
             const num = String(i + 1).padStart(3, "0");
             const src = `/images/bg${num}.jpg`;
             return (
@@ -118,5 +118,11 @@
                 duration: 1,
                 ease: "power2.in",
             });
+    });
+
+    // Cleanup: kill all ScrollTriggers before an Astro View Transition swap to
+    // prevent stale triggers / duplicate instances and memory leaks.
+    document.addEventListener("astro:before-swap", () => {
+        ScrollTrigger.getAll().forEach((t) => t.kill());
     });
 </script>

@@ -4,7 +4,11 @@ import Layout from "../layouts/Layout.astro";
 // 404 Page - Simple & Impactful
 ---
 
-<Layout title="404 - Page Not Found">
+<Layout
+    title="ページが見つかりません（404） | WRO 2026 三重県予選大会"
+    description="お探しのページが見つかりませんでした。URLが間違っているか、ページが削除・移動された可能性があります。"
+    noindex={true}
+>
     <div
         class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white"
     >
@@ -42,7 +46,7 @@ import Layout from "../layouts/Layout.astro";
                 href="/"
                 class="group inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all hover:shadow-xl hover:-translate-y-1"
             >
-                <span>Go Back Home</span>
+                <span>トップへ戻る</span>
                 <svg
                     class="w-4 h-4 transition-transform group-hover:translate-x-1"
                     fill="none"

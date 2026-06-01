@@ -1,46 +1,63 @@
-# Astro Starter Kit: Basics
+# WRO 2026 三重県予選大会ポータルサイト
+
+**World Robot Olympiad 2026** 三重県予選大会の公式ポータルサイト。
+テーマは **"Robots Meet Culture"**（ロボット × 芸術・文化の融合）。
+
+- 本番URL: https://wro2026.miraido.net
+- ホスティング: Cloudflare Pages（GitHub `main` push で自動デプロイ）
+- 制作: MIRAIDO PROJECT / 株式会社三六〇
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+| :-- | :-- |
+| フレームワーク | Astro 5（SSG + React Islands） |
+| UI | React 19 |
+| スタイリング | Tailwind CSS 4 |
+| CMS | microCMS（blogs / news） |
+| 3D | Three.js + React Three Fiber + drei |
+| アニメーション | GSAP + Lenis |
+| SEO | astro-seo + @astrojs/sitemap |
+
+React は `ThreeScene`（3D背景）と `ContactForm`（問い合わせ）の2箇所のみ Islands として使用。
+それ以外のページ本体・レイアウト・SEO は Astro が担当する。
+
+## セットアップ
 
 ```sh
-npm create astro@latest -- --template basics
+npm install
+npm run dev        # http://localhost:4321
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### 環境変数（`.env`）
 
-## 🚀 Project Structure
+microCMS 連携に以下が必要（Cloudflare Pages 側にも同名で設定）:
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```
+MICROCMS_SERVICE_DOMAIN=xxxxx
+MICROCMS_API_KEY=xxxxx
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+未設定時は MOCK データにフォールバックする。`.env` は絶対にコミットしないこと。
 
-## 🧞 Commands
+## コマンド
 
-All commands are run from the root of the project, from a terminal:
+| コマンド | 内容 |
+| :-- | :-- |
+| `npm run dev` | 開発サーバー起動（localhost:4321） |
+| `npm run build` | 本番ビルド（`./dist/`） |
+| `npm run preview` | ビルド結果のプレビュー |
+| `npm run check` | `astro check`（型チェック） |
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## アセット生成スクリプト
 
-## 👀 Want to learn more?
+| スクリプト | 生成物 |
+| :-- | :-- |
+| `node scripts/make-og.mjs` | `public/og-image.jpg`（OGP画像 1200×630） |
+| `node scripts/make-logo.mjs` | `public/logo.png`（構造化データ用ロゴ 512×512） |
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## デプロイ
+
+`main` ブランチへ push すると Cloudflare Pages が自動でビルド・デプロイする。
+
+詳細な開発ガイド・エージェント運用ルールは [`CLAUDE.md`](./CLAUDE.md) を参照。

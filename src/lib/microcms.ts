@@ -12,7 +12,7 @@ export type Blog = {
     content: string;
     thumbnail?: MicroCMSImage; // Correct field ID from CMS Schema
     targetSites?: string[];    // Selectable Field
-    category: BlogCategory;
+    category?: BlogCategory;   // Optional: may be unset on a content entry
 };
 
 export type BlogCategory = {
@@ -97,7 +97,7 @@ export const getBlogs = async (queries?: MicroCMSQueries): Promise<BlogResponse>
 export const getBlogDetail = async (
     contentId: string,
     queries?: MicroCMSQueries
-): Promise<Blog> => {
+): Promise<Blog | null> => {
     try {
         return await client.getListDetail<Blog>({
             endpoint: "blogs",
@@ -105,17 +105,10 @@ export const getBlogDetail = async (
             queries,
         });
     } catch (e) {
-        return {
-            id: contentId,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            publishedAt: new Date().toISOString(),
-            revisedAt: new Date().toISOString(),
-            title: `【サンプル】記事詳細 ${contentId}`,
-            content: "<p>詳細ページのサンプルです。APIキーを設定すると実際の記事が表示されます。</p>",
-            thumbnail: { url: "https://placehold.jp/150x150.png", height: 150, width: 150 },
-            category: { id: "info", name: "お知らせ", createdAt: "", updatedAt: "", publishedAt: "", revisedAt: "" }
-        };
+        // Return null when the article is missing or the fetch fails,
+        // so the page can redirect to /404 instead of rendering mock data.
+        console.warn(`MicroCMS getBlogDetail failed for id "${contentId}".`);
+        return null;
     }
 };
 
@@ -135,7 +128,7 @@ export const getNews = async (queries?: MicroCMSQueries): Promise<NewsResponse> 
 export const getNewsDetail = async (
     contentId: string,
     queries?: MicroCMSQueries
-) => {
+): Promise<News | null> => {
     try {
         return await client.getListDetail<News>({
             endpoint: "news",

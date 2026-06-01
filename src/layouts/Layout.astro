@@ -6,41 +6,48 @@ interface Props {
 	title?: string;
 	description?: string;
 	image?: string;
+	canonical?: string;
+	noindex?: boolean;
 	article?: boolean;
 	publishedTime?: string;
 	modifiedTime?: string;
 }
 
 const {
-	title = "WRO 2026 Portal",
-	description = "Official Portal for WRO 2026. Robotics competition news, updates, and resources.",
+	title = "WRO 2026 三重県予選大会ポータル",
+	description = "WRO 2026（World Robotics Olympiad）三重県予選大会の公式ポータルサイト。テーマ「Robots Meet Culture」のもと、競技情報・会場案内・最新ニュースをお届けします。",
 	image = "/og-image.jpg",
+	canonical,
+	noindex = false,
 	article = false,
 	publishedTime,
 	modifiedTime,
 } = Astro.props;
 
+// Canonical / OG URL: prefer the explicit prop, otherwise the current page URL.
+const canonicalURL = canonical ?? Astro.url.href;
+// Absolute URL for the OG/Twitter image (resolve relative paths against site).
+const imageURL = new URL(image, Astro.site ?? Astro.url).href;
+const siteURL = (Astro.site ?? new URL("/", Astro.url)).href.replace(/\/$/, "");
+
 // Schema.org JSON-LD Construction
-const schema: any = {
+type SchemaNode = Record<string, unknown>;
+const schema: { "@context": string; "@graph": SchemaNode[] } = {
 	"@context": "https://schema.org",
 	"@graph": [
 		{
 			"@type": "Organization",
-			"@id": "https://wro2026.org/#organization",
-			name: "WRO 2026 Committee",
-			url: "https://wro2026.org",
-			logo: "https://wro2026.org/logo.png",
-			sameAs: [
-				"https://twitter.com/wro2026",
-				"https://facebook.com/wro2026",
-			],
+			"@id": `${siteURL}/#organization`,
+			name: "WRO Japan 2026 三重県予選会実行委員会",
+			url: siteURL,
+			logo: `${siteURL}/logo.png`,
 		},
 		{
 			"@type": "WebSite",
-			"@id": "https://wro2026.org/#website",
-			url: "https://wro2026.org",
-			name: "WRO 2026 Portal",
-			publisher: { "@id": "https://wro2026.org/#organization" },
+			"@id": `${siteURL}/#website`,
+			url: siteURL,
+			name: "WRO 2026 三重県予選大会ポータル",
+			publisher: { "@id": `${siteURL}/#organization` },
 		},
 	],
 };
@@ -50,20 +57,22 @@ if (article) {
 		"@type": "Article",
 		headline: title.split("|")[0].trim(),
 		description: description,
-		image: image,
+		image: imageURL,
+		url: canonicalURL,
 		datePublished: publishedTime,
 		dateModified: modifiedTime || publishedTime,
-		author: { "@id": "https://wro2026.org/#organization" },
-		publisher: { "@id": "https://wro2026.org/#organization" },
+		author: { "@id": `${siteURL}/#organization` },
+		publisher: { "@id": `${siteURL}/#organization` },
 	});
 }
 
 import CustomCursor from "../components/CustomCursor.astro";
 import FloatingArt from "../components/FloatingArt.astro";
 import CookieBanner from "../components/CookieBanner.astro";
+import Footer from "../components/Footer.astro";
 ---
 
-<html lang="en">
+<html lang="ja">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -71,6 +80,7 @@ import CookieBanner from "../components/CookieBanner.astro";
 		<meta name="generator" content={Astro.generator} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!-- Fonts loaded via Google Fonts CDN (single source; @fontsource is not imported). -->
 		<link
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
 			rel="stylesheet"
@@ -79,19 +89,28 @@ import CookieBanner from "../components/CookieBanner.astro";
 		<SEO
 			title={title}
 			description={description}
+			canonical={canonicalURL}
+			noindex={noindex}
+			nofollow={noindex}
 			openGraph={{
 				basic: {
 					title: title,
 					type: article ? "article" : "website",
-					image: image,
+					image: imageURL,
+					url: canonicalURL,
+				},
+				optional: {
+					locale: "ja_JP",
+					description: description,
 				},
 			}}
 			twitter={{
+				card: "summary_large_image",
 				creator: "@wro2026",
 			}}
 			extend={{
 				meta: [
-					{ name: "twitter:image", content: image },
+					{ name: "twitter:image", content: imageURL },
 					{ name: "twitter:title", content: title },
 					{ name: "twitter:description", content: description },
 				],
@@ -107,6 +126,7 @@ import CookieBanner from "../components/CookieBanner.astro";
 		<CustomCursor />
 		<FloatingArt />
 		<slot />
+		<Footer />
 
 		<script>
 			import Lenis from "lenis";

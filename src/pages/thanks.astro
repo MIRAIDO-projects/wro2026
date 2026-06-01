@@ -4,7 +4,11 @@ import Layout from "../layouts/Layout.astro";
 // Thank You Page - Success state
 ---
 
-<Layout title="Thank You">
+<Layout
+    title="送信完了 | WRO 2026 三重県予選大会"
+    description="お問い合わせの送信が完了しました。WRO 2026 三重県予選大会へのお問い合わせありがとうございます。"
+    noindex={true}
+>
     <div
         class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white"
     >
@@ -50,7 +54,7 @@ import Layout from "../layouts/Layout.astro";
                 href="/"
                 class="group inline-flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all hover:shadow-xl hover:-translate-y-1"
             >
-                <span>Back to Top</span>
+                <span>トップへ戻る</span>
                 <svg
                     class="w-4 h-4 transition-transform group-hover:-translate-x-1"
                     fill="none"

@@ -18,8 +18,18 @@
     const cursor = document.getElementById("custom-cursor");
     const circle = cursor?.querySelector(".cursor-circle");
 
+    // Respect users who prefer reduced motion: skip the custom cursor entirely.
+    const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+    ).matches;
+
     // Check if device supports fine pointer (mouse)
-    if (cursor && circle && window.matchMedia("(pointer: fine)").matches) {
+    if (
+        !prefersReducedMotion &&
+        cursor &&
+        circle &&
+        window.matchMedia("(pointer: fine)").matches
+    ) {
         // Center the cursor wrapper on the mouse
         gsap.set(cursor, { xPercent: -50, yPercent: -50 });
 
@@ -33,10 +43,20 @@
             ease: "power3",
         });
 
-        window.addEventListener("mousemove", (e) => {
+        const handleMouseMove = (e: MouseEvent) => {
             xTo(e.clientX);
             yTo(e.clientY);
-        });
+        };
+        window.addEventListener("mousemove", handleMouseMove);
+
+        // Cleanup on Astro View Transition swap to avoid duplicate listeners.
+        document.addEventListener(
+            "astro:before-swap",
+            () => {
+                window.removeEventListener("mousemove", handleMouseMove);
+            },
+            { once: true },
+        );
 
         // Add hover effects to interactive elements
         const hoverables = document.querySelectorAll(
